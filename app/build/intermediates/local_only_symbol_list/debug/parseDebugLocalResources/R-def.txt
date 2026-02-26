@@ -1,0 +1,37 @@
+R_DEF: Internal format may change without notice
+local
+color md_theme_dark_onPrimary
+color md_theme_dark_onPrimaryContainer
+color md_theme_dark_onSecondary
+color md_theme_dark_primary
+color md_theme_dark_primaryContainer
+color md_theme_dark_secondary
+color md_theme_light_onPrimary
+color md_theme_light_onPrimaryContainer
+color md_theme_light_onSecondary
+color md_theme_light_primary
+color md_theme_light_primaryContainer
+color md_theme_light_secondary
+drawable app_logo
+drawable app_logo_inset
+drawable ic_google_logo
+drawable ic_launcher_background
+drawable ic_launcher_foreground
+drawable ic_officer_building
+drawable ic_whatsapp
+drawable ic_whatsapp_logo
+drawable login_bg
+drawable officer
+id btnGoogleSignIn
+layout activity_main
+layout google_sign_in_button
+mipmap ic_launcher
+mipmap ic_launcher_round
+string app_name
+string default_web_client_id
+style Theme.PoliceLeaveManager
+style Theme.PoliceMobileDirectory
+xml backup_rules
+xml data_extraction_rules
+xml file_paths
+xml network_security_config

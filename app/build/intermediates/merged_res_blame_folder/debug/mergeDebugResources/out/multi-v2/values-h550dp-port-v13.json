@@ -1,0 +1,19 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.lm.app-mergeDebugResources-72:/values-h550dp-port-v13/values-h550dp-port-v13.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\ravip\\.gradle\\caches\\8.13\\transforms\\2d3ea2926b1bea37f7919b12fe91687e\\transformed\\material-1.12.0\\res\\values-h550dp-port-v13\\values-h550dp-port-v13.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "64",
+                        "endOffsets": "115"
+                    }
+                }
+            ]
+        }
+    ]
+}
