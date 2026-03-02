@@ -12,6 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.lm.app.data.LeaveEntry
 import com.lm.app.data.User
 import com.lm.app.ui.viewmodel.LeaveUiState
@@ -45,8 +46,19 @@ fun ApplyLeaveForm(
     var isHalfDay by remember { mutableStateOf(false) }
     var elEntryType by remember { mutableStateOf("taken") }
 
+    var hasMedicalCertificate by remember { mutableStateOf(false) }
+
     val dateFormat = SimpleDateFormat("dd MMM yyyy", Locale.US)
-    val leaveTypes = listOf("CL", "EL", "HPL", "WO", "LWA", "ML", "PL", "CCL", "MCL")
+    
+    val leaveTypes = remember(currentUser) {
+        val baseTypes = mutableListOf("CL", "EL", "HPL", "WO", "LWA", "CML", "LND")
+        if (currentUser?.gender?.lowercase() == "female") {
+            baseTypes.addAll(listOf("ML", "CCL", "MCL"))
+        } else {
+            baseTypes.addAll(listOf("PL"))
+        }
+        baseTypes.toList()
+    }
 
     fun showDatePicker(initial: Date?, onDateSelected: (Date) -> Unit) {
         val cal = Calendar.getInstance().apply { time = initial ?: Date() }
@@ -104,6 +116,7 @@ fun ApplyLeaveForm(
                                 expanded = false
                                 isHalfDay = false
                                 elEntryType = "taken"
+                                hasMedicalCertificate = false
                             }
                         )
                     }
@@ -198,8 +211,54 @@ fun ApplyLeaveForm(
                 maxLines = 3
             )
 
+            if (leaveType in listOf("CML", "LND")) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(
+                        checked = hasMedicalCertificate,
+                        onCheckedChange = { hasMedicalCertificate = it }
+                    )
+                    Text(
+                        text = "Medical Certificate Provided",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
+
             if (uiState is LeaveUiState.Error) {
                 Text(text = (uiState as LeaveUiState.Error).message, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(horizontal = 4.dp))
+            }
+            
+            // Helpful Warnings
+            if (leaveType == "EL" && days > 180) {
+                Text(text = "Warning: Earned Leave exceeds typical 180-days continuous limit.", color = MaterialTheme.colorScheme.primary, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 4.dp))
+            }
+            if (leaveType == "ML" && days > 180) {
+                Text(text = "Warning: Maternity Leave exceeds 180-days limit.", color = MaterialTheme.colorScheme.primary, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 4.dp))
+            }
+
+            // Rules Guidance
+            val helperText = when (leaveType) {
+                "EL" -> "Rule: Max 180 days at a time. Advance credited 15 days on Jan 1 and Jul 1."
+                "CL" -> "Rule: Max 7 days at a time. Half days are allowed."
+                "HPL" -> "Rule: Can be availed on personal or medical grounds. Advance credited 10 days on Jan 1 and Jul 1."
+                "CML" -> "Rule: Commuted Leave on Medical Certificate. Deducts twice the amount of days from HPL balance."
+                "LND" -> "Rule: Leave Not Due. Max 360 days allowed during entire service. Requires Medical Certificate."
+                "ML" -> "Rule: Max 180 days. Applicable for up to 2 surviving children."
+                "PL" -> "Rule: 15 days within 6 months of childbirth, up to 2 children."
+                "CCL" -> "Rule: Max 730 days for up to 2 children below 18 years."
+                "MCL" -> "Rule: Commuted on Menstrual Grounds. (State specific)."
+                "LWA", "EOL" -> "Rule: Extraordinary Leave granted under special circumstances."
+                else -> ""
+            }
+
+            if (helperText.isNotEmpty()) {
+                Text(
+                    text = helperText,
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 4.dp)
+                )
             }
 
             Button(
@@ -219,12 +278,14 @@ fun ApplyLeaveForm(
                         isMcl = leaveType == "MCL",
                         elEntryType = if (leaveType == "EL") elEntryType else "taken",
                         year = cal.get(Calendar.YEAR),
-                        month = cal.get(Calendar.MONTH) + 1
+                        month = cal.get(Calendar.MONTH) + 1,
+                        hasMedicalCertificate = hasMedicalCertificate
                     )
                     leaveViewModel.applyLeave(user, entry)
                 },
                 modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                enabled = dateFrom != null && (isHalfDay || leaveType in listOf("WO", "MCL") || dateTo != null) && uiState !is LeaveUiState.Loading
+                enabled = dateFrom != null && (isHalfDay || leaveType in listOf("WO", "MCL") || dateTo != null) && uiState !is LeaveUiState.Loading 
+                          && (leaveType !in listOf("CML", "LND") || hasMedicalCertificate)
             ) {
                 if (uiState is LeaveUiState.Loading) {
                     CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White)

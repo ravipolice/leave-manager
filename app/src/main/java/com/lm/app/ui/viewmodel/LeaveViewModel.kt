@@ -33,7 +33,9 @@ class LeaveViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = LeaveUiState.Loading
             try {
-                val currentBalance = leaveRepository.getLeaveBalance(user.kgid)
+                var currentBalance = leaveRepository.getLeaveBalance(user.kgid)
+                currentBalance = checkAndApplyAutoCredits(user.kgid, currentBalance)
+                
                 _balance.value = currentBalance
 
                 val currentYear = Calendar.getInstance().get(Calendar.YEAR)
@@ -102,6 +104,103 @@ class LeaveViewModel @Inject constructor(
                 _uiState.value = LeaveUiState.Error("Failed to update: ${e.message}")
             }
         }
+    }
+
+    fun updateClLimit(user: User, newLimit: Int) {
+        viewModelScope.launch {
+            try {
+                val currentBalance = _balance.value ?: leaveRepository.getLeaveBalance(user.kgid)
+                _uiState.value = LeaveUiState.Loading
+                
+                // Keep the CL Year logic intact, just update the limit and remaining balance proportionally
+                val diff = newLimit - currentBalance.clAnnualLimit
+                val updatedBalance = currentBalance.copy(
+                    clAnnualLimit = newLimit,
+                    clRemaining = currentBalance.clRemaining + diff
+                )
+                
+                leaveRepository.saveLeaveBalance(updatedBalance)
+                _balance.value = updatedBalance
+                refreshData(user)
+            } catch (e: Exception) {
+                 _uiState.value = LeaveUiState.Error("Failed to update CL limit: ${e.message}")
+            }
+        }
+    }
+
+    fun updateInitialBalances(user: User, newEl: Double, newHpl: Double) {
+        viewModelScope.launch {
+            try {
+                val currentBalance = _balance.value ?: leaveRepository.getLeaveBalance(user.kgid)
+                _uiState.value = LeaveUiState.Loading
+
+                val updatedBalance = currentBalance.copy(
+                    elManualBalance = newEl,
+                    elBalance = newEl,
+                    hplBalance = newHpl
+                )
+                leaveRepository.saveLeaveBalance(updatedBalance)
+                _balance.value = updatedBalance
+                refreshData(user)
+            } catch (e: Exception) {
+                _uiState.value = LeaveUiState.Error("Failed to update balances: ${e.message}")
+            }
+        }
+    }
+
+    private suspend fun checkAndApplyAutoCredits(kgid: String, balance: LeaveBalance): LeaveBalance {
+        val cal = Calendar.getInstance()
+        val currentYear = cal.get(Calendar.YEAR)
+        val currentMonth = cal.get(Calendar.MONTH) // 0-indexed, Jan = 0, Jul = 6
+        
+        // Define the target credit string format: "YYYY-1" for Jan, "YYYY-2" for July
+        val currentSem = if (currentMonth < java.util.Calendar.JULY) 1 else 2
+        
+        var tempBalance = balance
+        var modified = false
+
+        // Example: If it's August 2026, currentSem = 2.
+        // We need to check if we've credited for Jan 2026 and Jul 2026.
+        // Instead of a complex loop, let's just do a simple check:
+        // What is the expected last credit string? -> targetCredit = "${currentYear}-${currentSem}"
+        val targetCredit = "${currentYear}-${currentSem}"
+        
+        // If balance indicates we haven't reached this target credit yet, we apply it.
+        // To be thorough, if they somehow missed Jan and open the app in Jul, we should give both.
+        // For simplicity, if lastElHplCreditDate is empty, we don't retroactively credit 10 years.
+        // We just pretend we're up to date OR we credit once for the current semester.
+        if (balance.lastElHplCreditDate.isEmpty()) {
+            return balance.copy(lastElHplCreditDate = targetCredit).also {
+                leaveRepository.saveLeaveBalance(it)
+            }
+        }
+
+        // Parse last credit Date
+        val parts = balance.lastElHplCreditDate.split("-")
+        if (parts.size == 2) {
+            val lastYear = parts[0].toIntOrNull() ?: currentYear
+            val lastSem = parts[1].toIntOrNull() ?: currentSem
+            
+            // Difference in semesters
+            val semsPassed = ((currentYear - lastYear) * 2) + (currentSem - lastSem)
+            
+            if (semsPassed > 0) {
+                // We add 15 EL and 10 HPL for each semester passed (cap it to some reasonable number if needed, e.g., max 6 sems)
+                val semsToCredit = semsPassed.coerceAtMost(6) // cap at 3 years missed
+                tempBalance = tempBalance.copy(
+                    elBalance = tempBalance.elBalance + (15.0 * semsToCredit),
+                    hplBalance = tempBalance.hplBalance + (10.0 * semsToCredit),
+                    lastElHplCreditDate = targetCredit
+                )
+                modified = true
+            }
+        }
+
+        if (modified) {
+            leaveRepository.saveLeaveBalance(tempBalance)
+        }
+        
+        return tempBalance
     }
 
     fun resetUiState() {

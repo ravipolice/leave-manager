@@ -52,7 +52,7 @@ public final class LeaveDao_Impl implements LeaveDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR REPLACE INTO `leave_balances` (`kgid`,`clYear`,`clAnnualLimit`,`clRemaining`,`elManualBalance`,`elBalance`,`hplBalance`,`cclUsed`,`maternityUsedCount`,`paternityUsedCount`,`mclUsedThisMonth`,`mclLastUsedMonth`,`mclLastUsedYear`,`lastResetYear`,`lastCreditDate`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        return "INSERT OR REPLACE INTO `leave_balances` (`kgid`,`clYear`,`clAnnualLimit`,`clRemaining`,`elManualBalance`,`elBalance`,`hplBalance`,`cclUsed`,`maternityUsedCount`,`paternityUsedCount`,`mclUsedThisMonth`,`mclLastUsedMonth`,`mclLastUsedYear`,`lastResetYear`,`lastCreditDate`,`lastElHplCreditDate`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
       }
 
       @Override
@@ -73,13 +73,14 @@ public final class LeaveDao_Impl implements LeaveDao {
         statement.bindLong(13, entity.getMclLastUsedYear());
         statement.bindLong(14, entity.getLastResetYear());
         statement.bindString(15, entity.getLastCreditDate());
+        statement.bindString(16, entity.getLastElHplCreditDate());
       }
     };
     this.__insertionAdapterOfLeaveEntry = new EntityInsertionAdapter<LeaveEntry>(__db) {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR ABORT INTO `leave_entries` (`id`,`kgid`,`dateFrom`,`dateTo`,`totalDays`,`leaveType`,`remark`,`createdAt`,`modifiedAt`,`year`,`month`,`isHalfDay`,`isMcl`,`elEntryType`) VALUES (nullif(?, 0),?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        return "INSERT OR ABORT INTO `leave_entries` (`id`,`kgid`,`dateFrom`,`dateTo`,`totalDays`,`leaveType`,`remark`,`createdAt`,`modifiedAt`,`year`,`month`,`isHalfDay`,`isMcl`,`elEntryType`,`hasMedicalCertificate`) VALUES (nullif(?, 0),?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
       }
 
       @Override
@@ -125,6 +126,8 @@ public final class LeaveDao_Impl implements LeaveDao {
         final int _tmp_5 = entity.isMcl() ? 1 : 0;
         statement.bindLong(13, _tmp_5);
         statement.bindString(14, entity.getElEntryType());
+        final int _tmp_6 = entity.getHasMedicalCertificate() ? 1 : 0;
+        statement.bindLong(15, _tmp_6);
       }
     };
     this.__deletionAdapterOfLeaveEntry = new EntityDeletionOrUpdateAdapter<LeaveEntry>(__db) {
@@ -144,7 +147,7 @@ public final class LeaveDao_Impl implements LeaveDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "UPDATE OR ABORT `leave_entries` SET `id` = ?,`kgid` = ?,`dateFrom` = ?,`dateTo` = ?,`totalDays` = ?,`leaveType` = ?,`remark` = ?,`createdAt` = ?,`modifiedAt` = ?,`year` = ?,`month` = ?,`isHalfDay` = ?,`isMcl` = ?,`elEntryType` = ? WHERE `id` = ?";
+        return "UPDATE OR ABORT `leave_entries` SET `id` = ?,`kgid` = ?,`dateFrom` = ?,`dateTo` = ?,`totalDays` = ?,`leaveType` = ?,`remark` = ?,`createdAt` = ?,`modifiedAt` = ?,`year` = ?,`month` = ?,`isHalfDay` = ?,`isMcl` = ?,`elEntryType` = ?,`hasMedicalCertificate` = ? WHERE `id` = ?";
       }
 
       @Override
@@ -190,7 +193,9 @@ public final class LeaveDao_Impl implements LeaveDao {
         final int _tmp_5 = entity.isMcl() ? 1 : 0;
         statement.bindLong(13, _tmp_5);
         statement.bindString(14, entity.getElEntryType());
-        statement.bindLong(15, entity.getId());
+        final int _tmp_6 = entity.getHasMedicalCertificate() ? 1 : 0;
+        statement.bindLong(15, _tmp_6);
+        statement.bindLong(16, entity.getId());
       }
     };
   }
@@ -309,6 +314,7 @@ public final class LeaveDao_Impl implements LeaveDao {
           final int _cursorIndexOfMclLastUsedYear = CursorUtil.getColumnIndexOrThrow(_cursor, "mclLastUsedYear");
           final int _cursorIndexOfLastResetYear = CursorUtil.getColumnIndexOrThrow(_cursor, "lastResetYear");
           final int _cursorIndexOfLastCreditDate = CursorUtil.getColumnIndexOrThrow(_cursor, "lastCreditDate");
+          final int _cursorIndexOfLastElHplCreditDate = CursorUtil.getColumnIndexOrThrow(_cursor, "lastElHplCreditDate");
           final LeaveBalance _result;
           if (_cursor.moveToFirst()) {
             final String _tmpKgid;
@@ -341,7 +347,9 @@ public final class LeaveDao_Impl implements LeaveDao {
             _tmpLastResetYear = _cursor.getInt(_cursorIndexOfLastResetYear);
             final String _tmpLastCreditDate;
             _tmpLastCreditDate = _cursor.getString(_cursorIndexOfLastCreditDate);
-            _result = new LeaveBalance(_tmpKgid,_tmpClYear,_tmpClAnnualLimit,_tmpClRemaining,_tmpElManualBalance,_tmpElBalance,_tmpHplBalance,_tmpCclUsed,_tmpMaternityUsedCount,_tmpPaternityUsedCount,_tmpMclUsedThisMonth,_tmpMclLastUsedMonth,_tmpMclLastUsedYear,_tmpLastResetYear,_tmpLastCreditDate);
+            final String _tmpLastElHplCreditDate;
+            _tmpLastElHplCreditDate = _cursor.getString(_cursorIndexOfLastElHplCreditDate);
+            _result = new LeaveBalance(_tmpKgid,_tmpClYear,_tmpClAnnualLimit,_tmpClRemaining,_tmpElManualBalance,_tmpElBalance,_tmpHplBalance,_tmpCclUsed,_tmpMaternityUsedCount,_tmpPaternityUsedCount,_tmpMclUsedThisMonth,_tmpMclLastUsedMonth,_tmpMclLastUsedYear,_tmpLastResetYear,_tmpLastCreditDate,_tmpLastElHplCreditDate);
           } else {
             _result = null;
           }
@@ -380,6 +388,7 @@ public final class LeaveDao_Impl implements LeaveDao {
           final int _cursorIndexOfIsHalfDay = CursorUtil.getColumnIndexOrThrow(_cursor, "isHalfDay");
           final int _cursorIndexOfIsMcl = CursorUtil.getColumnIndexOrThrow(_cursor, "isMcl");
           final int _cursorIndexOfElEntryType = CursorUtil.getColumnIndexOrThrow(_cursor, "elEntryType");
+          final int _cursorIndexOfHasMedicalCertificate = CursorUtil.getColumnIndexOrThrow(_cursor, "hasMedicalCertificate");
           final List<LeaveEntry> _result = new ArrayList<LeaveEntry>(_cursor.getCount());
           while (_cursor.moveToNext()) {
             final LeaveEntry _item;
@@ -453,7 +462,11 @@ public final class LeaveDao_Impl implements LeaveDao {
             _tmpIsMcl = _tmp_7 != 0;
             final String _tmpElEntryType;
             _tmpElEntryType = _cursor.getString(_cursorIndexOfElEntryType);
-            _item = new LeaveEntry(_tmpId,_tmpKgid,_tmpDateFrom,_tmpDateTo,_tmpTotalDays,_tmpLeaveType,_tmpRemark,_tmpCreatedAt,_tmpModifiedAt,_tmpYear,_tmpMonth,_tmpIsHalfDay,_tmpIsMcl,_tmpElEntryType);
+            final boolean _tmpHasMedicalCertificate;
+            final int _tmp_8;
+            _tmp_8 = _cursor.getInt(_cursorIndexOfHasMedicalCertificate);
+            _tmpHasMedicalCertificate = _tmp_8 != 0;
+            _item = new LeaveEntry(_tmpId,_tmpKgid,_tmpDateFrom,_tmpDateTo,_tmpTotalDays,_tmpLeaveType,_tmpRemark,_tmpCreatedAt,_tmpModifiedAt,_tmpYear,_tmpMonth,_tmpIsHalfDay,_tmpIsMcl,_tmpElEntryType,_tmpHasMedicalCertificate);
             _result.add(_item);
           }
           return _result;
@@ -501,6 +514,7 @@ public final class LeaveDao_Impl implements LeaveDao {
           final int _cursorIndexOfIsHalfDay = CursorUtil.getColumnIndexOrThrow(_cursor, "isHalfDay");
           final int _cursorIndexOfIsMcl = CursorUtil.getColumnIndexOrThrow(_cursor, "isMcl");
           final int _cursorIndexOfElEntryType = CursorUtil.getColumnIndexOrThrow(_cursor, "elEntryType");
+          final int _cursorIndexOfHasMedicalCertificate = CursorUtil.getColumnIndexOrThrow(_cursor, "hasMedicalCertificate");
           final List<LeaveEntry> _result = new ArrayList<LeaveEntry>(_cursor.getCount());
           while (_cursor.moveToNext()) {
             final LeaveEntry _item;
@@ -574,7 +588,11 @@ public final class LeaveDao_Impl implements LeaveDao {
             _tmpIsMcl = _tmp_7 != 0;
             final String _tmpElEntryType;
             _tmpElEntryType = _cursor.getString(_cursorIndexOfElEntryType);
-            _item = new LeaveEntry(_tmpId,_tmpKgid,_tmpDateFrom,_tmpDateTo,_tmpTotalDays,_tmpLeaveType,_tmpRemark,_tmpCreatedAt,_tmpModifiedAt,_tmpYear,_tmpMonth,_tmpIsHalfDay,_tmpIsMcl,_tmpElEntryType);
+            final boolean _tmpHasMedicalCertificate;
+            final int _tmp_8;
+            _tmp_8 = _cursor.getInt(_cursorIndexOfHasMedicalCertificate);
+            _tmpHasMedicalCertificate = _tmp_8 != 0;
+            _item = new LeaveEntry(_tmpId,_tmpKgid,_tmpDateFrom,_tmpDateTo,_tmpTotalDays,_tmpLeaveType,_tmpRemark,_tmpCreatedAt,_tmpModifiedAt,_tmpYear,_tmpMonth,_tmpIsHalfDay,_tmpIsMcl,_tmpElEntryType,_tmpHasMedicalCertificate);
             _result.add(_item);
           }
           return _result;

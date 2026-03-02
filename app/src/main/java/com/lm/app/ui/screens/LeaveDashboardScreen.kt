@@ -20,8 +20,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.lm.app.data.LeaveBalance
 import com.lm.app.data.LeaveStatistics
-import com.lm.app.ui.viewmodel.BackupStatus
-import com.lm.app.ui.viewmodel.BackupViewModel
 import com.lm.app.ui.viewmodel.LeaveUiState
 import com.lm.app.ui.viewmodel.LeaveViewModel
 import com.lm.app.ui.viewmodel.UserViewModel
@@ -38,60 +36,156 @@ fun LeaveDashboardScreen(
     onNavigateToOther: () -> Unit,
     onNavigateToApplyLeave: () -> Unit,
     onNavigateToReports: () -> Unit,
+    onNavigateToRules: () -> Unit,
     userViewModel: UserViewModel,
     leaveViewModel: LeaveViewModel,
-    backupViewModel: BackupViewModel = androidx.hilt.navigation.compose.hiltViewModel()
+    onOpenDrawer: () -> Unit = {}
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
     val currentUser by userViewModel.currentUser.collectAsState()
     val balance by leaveViewModel.balance.collectAsState()
     val statistics by leaveViewModel.statistics.collectAsState()
     val uiState by leaveViewModel.uiState.collectAsState()
-    val backupStatus by backupViewModel.backupStatus.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
-
-    LaunchedEffect(backupStatus) {
-        when (backupStatus) {
-            is BackupStatus.Success -> {
-                snackbarHostState.showSnackbar("Backup successful! Saved to Google Drive.")
-                backupViewModel.resetStatus()
-            }
-            is BackupStatus.Error -> {
-                snackbarHostState.showSnackbar((backupStatus as BackupStatus.Error).message)
-                backupViewModel.resetStatus()
-            }
-            else -> {}
-        }
-    }
 
     LaunchedEffect(currentUser) {
         currentUser?.let { leaveViewModel.refreshData(it) }
     }
+
+    var showEditBalanceDialog by remember { mutableStateOf(false) }
+    var elText by remember { mutableStateOf("0.0") }
+    var hplText by remember { mutableStateOf("0.0") }
+    var showEditClLimitDialog by remember { mutableStateOf(false) }
+
+    // Update the dialog texts when balance changes or dialog is about to show
+    LaunchedEffect(showEditBalanceDialog, balance) {
+        if (showEditBalanceDialog) {
+            elText = balance?.elManualBalance?.toString() ?: "0.0"
+            hplText = balance?.hplBalance?.toString() ?: "0.0"
+        }
+    }
+
+    if (showEditBalanceDialog) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showEditBalanceDialog = false },
+            title = { Text("Edit Base Balances") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("Enter your carried-over balance (prior to this year's auto-credits):", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    OutlinedTextField(
+                        value = elText,
+                        onValueChange = { elText = it },
+                        label = { Text("Earned Leave (EL)") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    OutlinedTextField(
+                        value = hplText,
+                        onValueChange = { hplText = it },
+                        label = { Text("Half Pay Leave (HPL)") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    currentUser?.let { user ->
+                        val newEl = elText.toDoubleOrNull() ?: balance?.elManualBalance ?: 0.0
+                        val newHpl = hplText.toDoubleOrNull() ?: balance?.hplBalance ?: 0.0
+                        leaveViewModel.updateInitialBalances(user, newEl, newHpl)
+                    }
+                    showEditBalanceDialog = false
+                }) {
+                    Text("Save")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showEditBalanceDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
+    if (showEditClLimitDialog) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showEditClLimitDialog = false },
+            title = { Text("Casual Leave Limit") },
+            text = { Text("Select your annual Casual Leave limit:") },
+            confirmButton = {},
+            dismissButton = {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    TextButton(onClick = {
+                        currentUser?.let { user -> leaveViewModel.updateClLimit(user, 10) }
+                        showEditClLimitDialog = false
+                    }) {
+                        Text("10 Days")
+                    }
+                    TextButton(onClick = {
+                        currentUser?.let { user -> leaveViewModel.updateClLimit(user, 15) }
+                        showEditClLimitDialog = false
+                    }) {
+                        Text("15 Days")
+                    }
+                }
+            }
+        )
+    }
+
+    var showMenu by remember { mutableStateOf(false) }
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = { Text("Leave Manager", fontWeight = FontWeight.Bold) },
+                navigationIcon = {
+                    IconButton(onClick = onOpenDrawer) {
+                        Icon(Icons.Default.Menu, contentDescription = "Open Drawer")
+                    }
+                },
                 actions = {
-                    IconButton(onClick = { currentUser?.let { leaveViewModel.seedSampleData(it) } }) {
-                        Icon(Icons.Default.Science, contentDescription = "Seed Data")
+                    IconButton(onClick = { showMenu = !showMenu }) {
+                        Icon(Icons.Default.MoreVert, contentDescription = "More Options")
                     }
-                    IconButton(onClick = { currentUser?.let { leaveViewModel.refreshData(it) } }) {
-                        Icon(Icons.Default.Refresh, contentDescription = "Refresh")
-                    }
-                    IconButton(
-                        onClick = { currentUser?.let { backupViewModel.performBackup(context, it) } },
-                        enabled = backupStatus !is BackupStatus.InProgress
+                    DropdownMenu(
+                        expanded = showMenu,
+                        onDismissRequest = { showMenu = false }
                     ) {
-                        if (backupStatus is BackupStatus.InProgress) {
-                            CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White, strokeWidth = 2.dp)
-                        } else {
-                            Icon(Icons.Default.CloudUpload, contentDescription = "Backup Now")
-                        }
-                    }
-                    IconButton(onClick = onNavigateToReports) {
-                        Icon(Icons.Default.BarChart, contentDescription = "Reports")
+                        DropdownMenuItem(
+                            text = { Text("Seed Data") },
+                            leadingIcon = { Icon(Icons.Default.Science, contentDescription = null) },
+                            onClick = {
+                                currentUser?.let { leaveViewModel.seedSampleData(it) }
+                                showMenu = false
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Refresh") },
+                            leadingIcon = { Icon(Icons.Default.Refresh, contentDescription = null) },
+                            onClick = {
+                                currentUser?.let { leaveViewModel.refreshData(it) }
+                                showMenu = false
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Reports") },
+                            leadingIcon = { Icon(Icons.Default.BarChart, contentDescription = null) },
+                            onClick = {
+                                onNavigateToReports()
+                                showMenu = false
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Leave Rules") },
+                            leadingIcon = { Icon(Icons.Default.Info, contentDescription = null) },
+                            onClick = {
+                                onNavigateToRules()
+                                showMenu = false
+                            }
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -140,7 +234,9 @@ fun LeaveDashboardScreen(
                                     subtitle = "of ${balance?.clAnnualLimit ?: 15} days",
                                     icon = Icons.Default.WbSunny,
                                     gradient = listOf(Color(0xFF43A047), Color(0xFF1B5E20)),
-                                    onClick = onNavigateToCl
+                                    onClick = onNavigateToCl,
+                                    actionIcon = Icons.Default.Edit,
+                                    onActionClick = { showEditClLimitDialog = true } 
                                 )
                             }
                             Box(modifier = Modifier.weight(1f)) {
@@ -150,7 +246,9 @@ fun LeaveDashboardScreen(
                                     subtitle = "days remaining",
                                     icon = Icons.Default.Star,
                                     gradient = listOf(Color(0xFF1E88E5), Color(0xFF0D47A1)),
-                                    onClick = onNavigateToEl
+                                    onClick = onNavigateToEl,
+                                    actionIcon = Icons.Default.Edit,
+                                    onActionClick = { showEditBalanceDialog = true }
                                 )
                             }
                         }
@@ -163,7 +261,9 @@ fun LeaveDashboardScreen(
                                     subtitle = "days remaining",
                                     icon = Icons.Default.Schedule,
                                     gradient = listOf(Color(0xFFFB8C00), Color(0xFFE65100)),
-                                    onClick = onNavigateToHpl
+                                    onClick = onNavigateToHpl,
+                                    actionIcon = Icons.Default.Edit,
+                                    onActionClick = { showEditBalanceDialog = true }
                                 )
                             }
                             Box(modifier = Modifier.weight(1f)) {
@@ -252,19 +352,34 @@ fun LeaveDashboardScreen(
 }
 
 @Composable
-fun LeaveTile(title: String, balance: String, subtitle: String, icon: ImageVector, gradient: List<Color>, onClick: () -> Unit) {
+fun LeaveTile(title: String, balance: String, subtitle: String, icon: ImageVector, gradient: List<Color>, onClick: () -> Unit, actionIcon: ImageVector? = null, onActionClick: (() -> Unit)? = null) {
     Card(
         modifier = Modifier.fillMaxWidth().height(120.dp).clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Box(modifier = Modifier.fillMaxSize().background(Brush.horizontalGradient(gradient)).padding(16.dp)) {
-            Text(text = title, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold, modifier = Modifier.align(Alignment.TopEnd))
+            Text(
+                text = title,
+                color = Color.White,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.align(Alignment.TopEnd).offset(y = (-8).dp)
+            )
             Column(modifier = Modifier.align(Alignment.CenterStart)) {
                 Text(text = balance, color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Bold)
                 Text(text = subtitle, color = Color.White.copy(alpha = 0.8f), fontSize = 12.sp)
             }
             Icon(imageVector = icon, contentDescription = null, tint = Color.White.copy(alpha = 0.2f), modifier = Modifier.size(64.dp).align(Alignment.BottomEnd))
+            
+            if (actionIcon != null && onActionClick != null) {
+                IconButton(
+                    onClick = onActionClick,
+                    modifier = Modifier.align(Alignment.TopStart).size(32.dp).offset(y = (-12).dp, x = (-12).dp)
+                ) {
+                    Icon(imageVector = actionIcon, contentDescription = "Edit", tint = Color.White.copy(alpha = 0.7f), modifier = Modifier.size(16.dp))
+                }
+            }
         }
     }
 }

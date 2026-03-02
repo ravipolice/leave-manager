@@ -17,4 +17,8 @@ class UserViewModel @Inject constructor() : ViewModel() {
     fun setUser(user: User) {
         _currentUser.value = user
     }
+
+    fun logout() {
+        _currentUser.value = null
+    }
 }

@@ -28,5 +28,6 @@ data class LeaveEntry(
     val month: Int = 0,
     val isHalfDay: Boolean = false,
     val isMcl: Boolean = false,
-    val elEntryType: String = "taken" // "taken" | "upcoming"
+    val elEntryType: String = "taken", // "taken" | "upcoming"
+    val hasMedicalCertificate: Boolean = false
 )

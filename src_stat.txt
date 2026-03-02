@@ -1,0 +1,19 @@
+﻿ app/build.gradle.kts                               |   7 +
+ app/src/main/java/com/lm/app/MainActivity.kt       | 190 +++++++----
+ .../main/java/com/lm/app/auth/GoogleAuthHelper.kt  |   3 +-
+ app/src/main/java/com/lm/app/data/AppDatabase.kt   |   2 +-
+ app/src/main/java/com/lm/app/data/LeaveBalance.kt  |   3 +-
+ app/src/main/java/com/lm/app/data/LeaveEntry.kt    |   3 +-
+ app/src/main/java/com/lm/app/data/User.kt          |   9 +-
+ app/src/main/java/com/lm/app/di/DataModule.kt      |  19 +-
+ .../com/lm/app/ui/components/ApplyLeaveForm.kt     |  67 +++-
+ .../com/lm/app/ui/screens/LeaveDashboardScreen.kt  | 191 ++++++++---
+ .../java/com/lm/app/ui/screens/LeaveEntryScreen.kt |  10 +-
+ .../com/lm/app/ui/screens/LeaveHistoryScreen.kt    |  91 ++++-
+ .../main/java/com/lm/app/ui/screens/LoginScreen.kt | 374 ++++++++++++++++-----
+ .../java/com/lm/app/ui/viewmodel/LeaveViewModel.kt | 101 +++++-
+ .../java/com/lm/app/ui/viewmodel/UserViewModel.kt  |   4 +
+ .../com/lm/app/utils/LeaveBalanceCalculator.kt     |   4 +
+ .../java/com/lm/app/utils/LeaveValidationEngine.kt |  71 +---
+ build.gradle.kts                                   |   1 +
+ 18 files changed, 863 insertions(+), 287 deletions(-)

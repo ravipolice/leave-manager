@@ -90,7 +90,11 @@ fun LeaveEntryScreen(
                 }
             } else {
                 filteredEntries.forEach { entry ->
-                    Card(modifier = Modifier.fillMaxWidth()) {
+                    val baseColor = getLeaveColor(entry.leaveType, entry.isMcl)
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = baseColor.copy(alpha = 0.1f))
+                    ) {
                         Column(modifier = Modifier.padding(12.dp)) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
@@ -100,7 +104,7 @@ fun LeaveEntryScreen(
                                 Text(
                                     text = if (entry.isMcl) "Menstrual CL" else entry.leaveType,
                                     fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.primary,
+                                    color = baseColor,
                                     modifier = Modifier.weight(1f)
                                 )
                                 Row {
@@ -112,7 +116,7 @@ fun LeaveEntryScreen(
                                             imageVector = Icons.Default.Edit,
                                             contentDescription = "Edit",
                                             modifier = Modifier.size(18.dp),
-                                            tint = MaterialTheme.colorScheme.primary
+                                            tint = baseColor
                                         )
                                     }
                                     IconButton(

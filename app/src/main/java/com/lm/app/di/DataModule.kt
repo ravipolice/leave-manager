@@ -2,6 +2,11 @@ package com.lm.app.di
 
 import android.content.Context
 import androidx.room.Room
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import com.lm.app.data.AppDatabase
 import com.lm.app.data.LeaveDao
 import dagger.Module
@@ -22,11 +27,23 @@ object DataModule {
             context,
             AppDatabase::class.java,
             "leave_manager.db"
-        ).build()
+        ).fallbackToDestructiveMigration().build()
     }
 
     @Provides
     fun provideLeaveDao(database: AppDatabase): LeaveDao {
         return database.leaveDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideFirebaseAuth(): FirebaseAuth {
+        return Firebase.auth
+    }
+
+    @Provides
+    @Singleton
+    fun provideFirebaseFirestore(): FirebaseFirestore {
+        return Firebase.firestore
     }
 }

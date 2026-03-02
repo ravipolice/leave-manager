@@ -8,14 +8,21 @@ import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.ViewModel;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.lm.app.backup.BackupService;
 import com.lm.app.backup.GoogleDriveService;
 import com.lm.app.data.AppDatabase;
 import com.lm.app.data.LeaveDao;
 import com.lm.app.data.LeaveRepository;
+import com.lm.app.data.repository.AuthRepository;
 import com.lm.app.di.BackupModule_ProvideGoogleDriveServiceFactory;
 import com.lm.app.di.DataModule_ProvideDatabaseFactory;
+import com.lm.app.di.DataModule_ProvideFirebaseAuthFactory;
+import com.lm.app.di.DataModule_ProvideFirebaseFirestoreFactory;
 import com.lm.app.di.DataModule_ProvideLeaveDaoFactory;
+import com.lm.app.ui.viewmodel.AuthViewModel;
+import com.lm.app.ui.viewmodel.AuthViewModel_HiltModules;
 import com.lm.app.ui.viewmodel.BackupViewModel;
 import com.lm.app.ui.viewmodel.BackupViewModel_HiltModules;
 import com.lm.app.ui.viewmodel.LeaveViewModel;
@@ -380,7 +387,7 @@ public final class DaggerMainApplication_HiltComponents_SingletonC {
 
     @Override
     public Map<Class<?>, Boolean> getViewModelKeys() {
-      return LazyClassKeyMap.<Boolean>of(ImmutableMap.<String, Boolean>of(LazyClassKeyProvider.com_lm_app_ui_viewmodel_BackupViewModel, BackupViewModel_HiltModules.KeyModule.provide(), LazyClassKeyProvider.com_lm_app_ui_viewmodel_LeaveViewModel, LeaveViewModel_HiltModules.KeyModule.provide(), LazyClassKeyProvider.com_lm_app_ui_viewmodel_UserViewModel, UserViewModel_HiltModules.KeyModule.provide()));
+      return LazyClassKeyMap.<Boolean>of(ImmutableMap.<String, Boolean>of(LazyClassKeyProvider.com_lm_app_ui_viewmodel_AuthViewModel, AuthViewModel_HiltModules.KeyModule.provide(), LazyClassKeyProvider.com_lm_app_ui_viewmodel_BackupViewModel, BackupViewModel_HiltModules.KeyModule.provide(), LazyClassKeyProvider.com_lm_app_ui_viewmodel_LeaveViewModel, LeaveViewModel_HiltModules.KeyModule.provide(), LazyClassKeyProvider.com_lm_app_ui_viewmodel_UserViewModel, UserViewModel_HiltModules.KeyModule.provide()));
     }
 
     @Override
@@ -402,18 +409,23 @@ public final class DaggerMainApplication_HiltComponents_SingletonC {
     private static final class LazyClassKeyProvider {
       static String com_lm_app_ui_viewmodel_BackupViewModel = "com.lm.app.ui.viewmodel.BackupViewModel";
 
-      static String com_lm_app_ui_viewmodel_UserViewModel = "com.lm.app.ui.viewmodel.UserViewModel";
-
       static String com_lm_app_ui_viewmodel_LeaveViewModel = "com.lm.app.ui.viewmodel.LeaveViewModel";
+
+      static String com_lm_app_ui_viewmodel_AuthViewModel = "com.lm.app.ui.viewmodel.AuthViewModel";
+
+      static String com_lm_app_ui_viewmodel_UserViewModel = "com.lm.app.ui.viewmodel.UserViewModel";
 
       @KeepFieldType
       BackupViewModel com_lm_app_ui_viewmodel_BackupViewModel2;
 
       @KeepFieldType
-      UserViewModel com_lm_app_ui_viewmodel_UserViewModel2;
+      LeaveViewModel com_lm_app_ui_viewmodel_LeaveViewModel2;
 
       @KeepFieldType
-      LeaveViewModel com_lm_app_ui_viewmodel_LeaveViewModel2;
+      AuthViewModel com_lm_app_ui_viewmodel_AuthViewModel2;
+
+      @KeepFieldType
+      UserViewModel com_lm_app_ui_viewmodel_UserViewModel2;
     }
   }
 
@@ -423,6 +435,8 @@ public final class DaggerMainApplication_HiltComponents_SingletonC {
     private final ActivityRetainedCImpl activityRetainedCImpl;
 
     private final ViewModelCImpl viewModelCImpl = this;
+
+    private Provider<AuthViewModel> authViewModelProvider;
 
     private Provider<BackupViewModel> backupViewModelProvider;
 
@@ -443,14 +457,15 @@ public final class DaggerMainApplication_HiltComponents_SingletonC {
     @SuppressWarnings("unchecked")
     private void initialize(final SavedStateHandle savedStateHandleParam,
         final ViewModelLifecycle viewModelLifecycleParam) {
-      this.backupViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 0);
-      this.leaveViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 1);
-      this.userViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 2);
+      this.authViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 0);
+      this.backupViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 1);
+      this.leaveViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 2);
+      this.userViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 3);
     }
 
     @Override
     public Map<Class<?>, javax.inject.Provider<ViewModel>> getHiltViewModelMap() {
-      return LazyClassKeyMap.<javax.inject.Provider<ViewModel>>of(ImmutableMap.<String, javax.inject.Provider<ViewModel>>of(LazyClassKeyProvider.com_lm_app_ui_viewmodel_BackupViewModel, ((Provider) backupViewModelProvider), LazyClassKeyProvider.com_lm_app_ui_viewmodel_LeaveViewModel, ((Provider) leaveViewModelProvider), LazyClassKeyProvider.com_lm_app_ui_viewmodel_UserViewModel, ((Provider) userViewModelProvider)));
+      return LazyClassKeyMap.<javax.inject.Provider<ViewModel>>of(ImmutableMap.<String, javax.inject.Provider<ViewModel>>of(LazyClassKeyProvider.com_lm_app_ui_viewmodel_AuthViewModel, ((Provider) authViewModelProvider), LazyClassKeyProvider.com_lm_app_ui_viewmodel_BackupViewModel, ((Provider) backupViewModelProvider), LazyClassKeyProvider.com_lm_app_ui_viewmodel_LeaveViewModel, ((Provider) leaveViewModelProvider), LazyClassKeyProvider.com_lm_app_ui_viewmodel_UserViewModel, ((Provider) userViewModelProvider)));
     }
 
     @Override
@@ -462,18 +477,23 @@ public final class DaggerMainApplication_HiltComponents_SingletonC {
     private static final class LazyClassKeyProvider {
       static String com_lm_app_ui_viewmodel_BackupViewModel = "com.lm.app.ui.viewmodel.BackupViewModel";
 
+      static String com_lm_app_ui_viewmodel_LeaveViewModel = "com.lm.app.ui.viewmodel.LeaveViewModel";
+
       static String com_lm_app_ui_viewmodel_UserViewModel = "com.lm.app.ui.viewmodel.UserViewModel";
 
-      static String com_lm_app_ui_viewmodel_LeaveViewModel = "com.lm.app.ui.viewmodel.LeaveViewModel";
+      static String com_lm_app_ui_viewmodel_AuthViewModel = "com.lm.app.ui.viewmodel.AuthViewModel";
 
       @KeepFieldType
       BackupViewModel com_lm_app_ui_viewmodel_BackupViewModel2;
 
       @KeepFieldType
+      LeaveViewModel com_lm_app_ui_viewmodel_LeaveViewModel2;
+
+      @KeepFieldType
       UserViewModel com_lm_app_ui_viewmodel_UserViewModel2;
 
       @KeepFieldType
-      LeaveViewModel com_lm_app_ui_viewmodel_LeaveViewModel2;
+      AuthViewModel com_lm_app_ui_viewmodel_AuthViewModel2;
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {
@@ -497,13 +517,16 @@ public final class DaggerMainApplication_HiltComponents_SingletonC {
       @Override
       public T get() {
         switch (id) {
-          case 0: // com.lm.app.ui.viewmodel.BackupViewModel 
+          case 0: // com.lm.app.ui.viewmodel.AuthViewModel 
+          return (T) new AuthViewModel(singletonCImpl.authRepositoryProvider.get());
+
+          case 1: // com.lm.app.ui.viewmodel.BackupViewModel 
           return (T) new BackupViewModel(singletonCImpl.backupServiceProvider.get());
 
-          case 1: // com.lm.app.ui.viewmodel.LeaveViewModel 
+          case 2: // com.lm.app.ui.viewmodel.LeaveViewModel 
           return (T) new LeaveViewModel(singletonCImpl.leaveRepositoryProvider.get());
 
-          case 2: // com.lm.app.ui.viewmodel.UserViewModel 
+          case 3: // com.lm.app.ui.viewmodel.UserViewModel 
           return (T) new UserViewModel();
 
           default: throw new AssertionError(id);
@@ -586,6 +609,12 @@ public final class DaggerMainApplication_HiltComponents_SingletonC {
 
     private final SingletonCImpl singletonCImpl = this;
 
+    private Provider<FirebaseAuth> provideFirebaseAuthProvider;
+
+    private Provider<FirebaseFirestore> provideFirebaseFirestoreProvider;
+
+    private Provider<AuthRepository> authRepositoryProvider;
+
     private Provider<AppDatabase> provideDatabaseProvider;
 
     private Provider<LeaveRepository> leaveRepositoryProvider;
@@ -606,10 +635,13 @@ public final class DaggerMainApplication_HiltComponents_SingletonC {
 
     @SuppressWarnings("unchecked")
     private void initialize(final ApplicationContextModule applicationContextModuleParam) {
-      this.provideDatabaseProvider = DoubleCheck.provider(new SwitchingProvider<AppDatabase>(singletonCImpl, 2));
-      this.leaveRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<LeaveRepository>(singletonCImpl, 1));
-      this.provideGoogleDriveServiceProvider = DoubleCheck.provider(new SwitchingProvider<GoogleDriveService>(singletonCImpl, 3));
-      this.backupServiceProvider = DoubleCheck.provider(new SwitchingProvider<BackupService>(singletonCImpl, 0));
+      this.provideFirebaseAuthProvider = DoubleCheck.provider(new SwitchingProvider<FirebaseAuth>(singletonCImpl, 1));
+      this.provideFirebaseFirestoreProvider = DoubleCheck.provider(new SwitchingProvider<FirebaseFirestore>(singletonCImpl, 2));
+      this.authRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<AuthRepository>(singletonCImpl, 0));
+      this.provideDatabaseProvider = DoubleCheck.provider(new SwitchingProvider<AppDatabase>(singletonCImpl, 5));
+      this.leaveRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<LeaveRepository>(singletonCImpl, 4));
+      this.provideGoogleDriveServiceProvider = DoubleCheck.provider(new SwitchingProvider<GoogleDriveService>(singletonCImpl, 6));
+      this.backupServiceProvider = DoubleCheck.provider(new SwitchingProvider<BackupService>(singletonCImpl, 3));
     }
 
     @Override
@@ -645,16 +677,25 @@ public final class DaggerMainApplication_HiltComponents_SingletonC {
       @Override
       public T get() {
         switch (id) {
-          case 0: // com.lm.app.backup.BackupService 
+          case 0: // com.lm.app.data.repository.AuthRepository 
+          return (T) new AuthRepository(singletonCImpl.provideFirebaseAuthProvider.get(), singletonCImpl.provideFirebaseFirestoreProvider.get());
+
+          case 1: // com.google.firebase.auth.FirebaseAuth 
+          return (T) DataModule_ProvideFirebaseAuthFactory.provideFirebaseAuth();
+
+          case 2: // com.google.firebase.firestore.FirebaseFirestore 
+          return (T) DataModule_ProvideFirebaseFirestoreFactory.provideFirebaseFirestore();
+
+          case 3: // com.lm.app.backup.BackupService 
           return (T) new BackupService(singletonCImpl.leaveRepositoryProvider.get(), singletonCImpl.provideGoogleDriveServiceProvider.get());
 
-          case 1: // com.lm.app.data.LeaveRepository 
+          case 4: // com.lm.app.data.LeaveRepository 
           return (T) new LeaveRepository(singletonCImpl.leaveDao());
 
-          case 2: // com.lm.app.data.AppDatabase 
+          case 5: // com.lm.app.data.AppDatabase 
           return (T) DataModule_ProvideDatabaseFactory.provideDatabase(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
 
-          case 3: // com.lm.app.backup.GoogleDriveService 
+          case 6: // com.lm.app.backup.GoogleDriveService 
           return (T) BackupModule_ProvideGoogleDriveServiceFactory.provideGoogleDriveService(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
 
           default: throw new AssertionError(id);

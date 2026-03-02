@@ -22,5 +22,6 @@ data class LeaveBalance(
     val mclLastUsedMonth: Int = 0,
     val mclLastUsedYear: Int = 0,
     val lastResetYear: Int = 0,
-    val lastCreditDate: String = "" // Format: YYYY-MM-DD
+    val lastCreditDate: String = "", // Format: YYYY-MM-DD
+    val lastElHplCreditDate: String = "" // Format: YYYY-MM
 )

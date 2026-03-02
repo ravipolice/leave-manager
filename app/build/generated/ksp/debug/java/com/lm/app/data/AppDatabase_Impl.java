@@ -31,13 +31,13 @@ public final class AppDatabase_Impl extends AppDatabase {
   @Override
   @NonNull
   protected SupportSQLiteOpenHelper createOpenHelper(@NonNull final DatabaseConfiguration config) {
-    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(1) {
+    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(2) {
       @Override
       public void createAllTables(@NonNull final SupportSQLiteDatabase db) {
-        db.execSQL("CREATE TABLE IF NOT EXISTS `leave_entries` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `kgid` TEXT NOT NULL, `dateFrom` INTEGER, `dateTo` INTEGER, `totalDays` REAL NOT NULL, `leaveType` TEXT NOT NULL, `remark` TEXT, `createdAt` INTEGER NOT NULL, `modifiedAt` INTEGER NOT NULL, `year` INTEGER NOT NULL, `month` INTEGER NOT NULL, `isHalfDay` INTEGER NOT NULL, `isMcl` INTEGER NOT NULL, `elEntryType` TEXT NOT NULL)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS `leave_balances` (`kgid` TEXT NOT NULL, `clYear` INTEGER NOT NULL, `clAnnualLimit` INTEGER NOT NULL, `clRemaining` REAL NOT NULL, `elManualBalance` REAL NOT NULL, `elBalance` REAL NOT NULL, `hplBalance` REAL NOT NULL, `cclUsed` REAL NOT NULL, `maternityUsedCount` INTEGER NOT NULL, `paternityUsedCount` INTEGER NOT NULL, `mclUsedThisMonth` INTEGER NOT NULL, `mclLastUsedMonth` INTEGER NOT NULL, `mclLastUsedYear` INTEGER NOT NULL, `lastResetYear` INTEGER NOT NULL, `lastCreditDate` TEXT NOT NULL, PRIMARY KEY(`kgid`))");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `leave_entries` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `kgid` TEXT NOT NULL, `dateFrom` INTEGER, `dateTo` INTEGER, `totalDays` REAL NOT NULL, `leaveType` TEXT NOT NULL, `remark` TEXT, `createdAt` INTEGER NOT NULL, `modifiedAt` INTEGER NOT NULL, `year` INTEGER NOT NULL, `month` INTEGER NOT NULL, `isHalfDay` INTEGER NOT NULL, `isMcl` INTEGER NOT NULL, `elEntryType` TEXT NOT NULL, `hasMedicalCertificate` INTEGER NOT NULL)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `leave_balances` (`kgid` TEXT NOT NULL, `clYear` INTEGER NOT NULL, `clAnnualLimit` INTEGER NOT NULL, `clRemaining` REAL NOT NULL, `elManualBalance` REAL NOT NULL, `elBalance` REAL NOT NULL, `hplBalance` REAL NOT NULL, `cclUsed` REAL NOT NULL, `maternityUsedCount` INTEGER NOT NULL, `paternityUsedCount` INTEGER NOT NULL, `mclUsedThisMonth` INTEGER NOT NULL, `mclLastUsedMonth` INTEGER NOT NULL, `mclLastUsedYear` INTEGER NOT NULL, `lastResetYear` INTEGER NOT NULL, `lastCreditDate` TEXT NOT NULL, `lastElHplCreditDate` TEXT NOT NULL, PRIMARY KEY(`kgid`))");
         db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6bee67ee5278cde7e37fc909fe8eb7ef')");
+        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6431474ee63a06c5d8275c3a327e7e65')");
       }
 
       @Override
@@ -87,7 +87,7 @@ public final class AppDatabase_Impl extends AppDatabase {
       @NonNull
       public RoomOpenHelper.ValidationResult onValidateSchema(
           @NonNull final SupportSQLiteDatabase db) {
-        final HashMap<String, TableInfo.Column> _columnsLeaveEntries = new HashMap<String, TableInfo.Column>(14);
+        final HashMap<String, TableInfo.Column> _columnsLeaveEntries = new HashMap<String, TableInfo.Column>(15);
         _columnsLeaveEntries.put("id", new TableInfo.Column("id", "INTEGER", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsLeaveEntries.put("kgid", new TableInfo.Column("kgid", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsLeaveEntries.put("dateFrom", new TableInfo.Column("dateFrom", "INTEGER", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
@@ -102,6 +102,7 @@ public final class AppDatabase_Impl extends AppDatabase {
         _columnsLeaveEntries.put("isHalfDay", new TableInfo.Column("isHalfDay", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsLeaveEntries.put("isMcl", new TableInfo.Column("isMcl", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsLeaveEntries.put("elEntryType", new TableInfo.Column("elEntryType", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsLeaveEntries.put("hasMedicalCertificate", new TableInfo.Column("hasMedicalCertificate", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         final HashSet<TableInfo.ForeignKey> _foreignKeysLeaveEntries = new HashSet<TableInfo.ForeignKey>(0);
         final HashSet<TableInfo.Index> _indicesLeaveEntries = new HashSet<TableInfo.Index>(0);
         final TableInfo _infoLeaveEntries = new TableInfo("leave_entries", _columnsLeaveEntries, _foreignKeysLeaveEntries, _indicesLeaveEntries);
@@ -111,7 +112,7 @@ public final class AppDatabase_Impl extends AppDatabase {
                   + " Expected:\n" + _infoLeaveEntries + "\n"
                   + " Found:\n" + _existingLeaveEntries);
         }
-        final HashMap<String, TableInfo.Column> _columnsLeaveBalances = new HashMap<String, TableInfo.Column>(15);
+        final HashMap<String, TableInfo.Column> _columnsLeaveBalances = new HashMap<String, TableInfo.Column>(16);
         _columnsLeaveBalances.put("kgid", new TableInfo.Column("kgid", "TEXT", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsLeaveBalances.put("clYear", new TableInfo.Column("clYear", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsLeaveBalances.put("clAnnualLimit", new TableInfo.Column("clAnnualLimit", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
@@ -127,6 +128,7 @@ public final class AppDatabase_Impl extends AppDatabase {
         _columnsLeaveBalances.put("mclLastUsedYear", new TableInfo.Column("mclLastUsedYear", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsLeaveBalances.put("lastResetYear", new TableInfo.Column("lastResetYear", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsLeaveBalances.put("lastCreditDate", new TableInfo.Column("lastCreditDate", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsLeaveBalances.put("lastElHplCreditDate", new TableInfo.Column("lastElHplCreditDate", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         final HashSet<TableInfo.ForeignKey> _foreignKeysLeaveBalances = new HashSet<TableInfo.ForeignKey>(0);
         final HashSet<TableInfo.Index> _indicesLeaveBalances = new HashSet<TableInfo.Index>(0);
         final TableInfo _infoLeaveBalances = new TableInfo("leave_balances", _columnsLeaveBalances, _foreignKeysLeaveBalances, _indicesLeaveBalances);
@@ -138,7 +140,7 @@ public final class AppDatabase_Impl extends AppDatabase {
         }
         return new RoomOpenHelper.ValidationResult(true, null);
       }
-    }, "6bee67ee5278cde7e37fc909fe8eb7ef", "9426d5fc0f00a30893a270aa2dff8137");
+    }, "6431474ee63a06c5d8275c3a327e7e65", "21bf9a25505f9efd3e3569a8097d5ce2");
     final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build();
     final SupportSQLiteOpenHelper _helper = config.sqliteOpenHelperFactory.create(_sqliteConfig);
     return _helper;

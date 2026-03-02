@@ -21,6 +21,8 @@ import hilt_aggregated_deps._com_lm_app_MainActivity_GeneratedInjector;
 import hilt_aggregated_deps._com_lm_app_MainApplication_GeneratedInjector;
 import hilt_aggregated_deps._com_lm_app_di_BackupModule;
 import hilt_aggregated_deps._com_lm_app_di_DataModule;
+import hilt_aggregated_deps._com_lm_app_ui_viewmodel_AuthViewModel_HiltModules_BindsModule;
+import hilt_aggregated_deps._com_lm_app_ui_viewmodel_AuthViewModel_HiltModules_KeyModule;
 import hilt_aggregated_deps._com_lm_app_ui_viewmodel_BackupViewModel_HiltModules_BindsModule;
 import hilt_aggregated_deps._com_lm_app_ui_viewmodel_BackupViewModel_HiltModules_KeyModule;
 import hilt_aggregated_deps._com_lm_app_ui_viewmodel_LeaveViewModel_HiltModules_BindsModule;
@@ -71,6 +73,8 @@ import hilt_aggregated_deps._dagger_hilt_android_internal_modules_HiltWrapper_Ac
         _com_lm_app_MainApplication_GeneratedInjector.class,
         _com_lm_app_di_BackupModule.class,
         _com_lm_app_di_DataModule.class,
+        _com_lm_app_ui_viewmodel_AuthViewModel_HiltModules_BindsModule.class,
+        _com_lm_app_ui_viewmodel_AuthViewModel_HiltModules_KeyModule.class,
         _com_lm_app_ui_viewmodel_BackupViewModel_HiltModules_BindsModule.class,
         _com_lm_app_ui_viewmodel_BackupViewModel_HiltModules_KeyModule.class,
         _com_lm_app_ui_viewmodel_LeaveViewModel_HiltModules_BindsModule.class,

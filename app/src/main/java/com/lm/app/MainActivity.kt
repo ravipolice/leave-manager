@@ -10,8 +10,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import kotlinx.coroutines.launch
 import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import androidx.navigation.navArgument
@@ -59,75 +64,126 @@ fun AppNavigation() {
             }
         }
     }
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
 
-    NavHost(
-        navController = navController,
-        startDestination = "login"
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        gesturesEnabled = currentRoute != "login",
+        drawerContent = {
+            if (currentRoute != "login") {
+                com.lm.app.ui.components.NavigationDrawer(
+                    navController = navController,
+                    drawerState = drawerState,
+                    scope = scope,
+                    userViewModel = userViewModel,
+                    currentRoute = currentRoute,
+                    onLogout = {
+                        userViewModel.logout()
+                        navController.navigate("login") {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
+                )
+            }
+        }
     ) {
-        composable("login") {
-            LoginScreen(
-                onLoginSuccess = { 
-                    navController.navigate("dashboard") { 
-                        popUpTo("login") { inclusive = true } 
-                    } 
-                },
-                userViewModel = userViewModel
-            )
-        }
-        composable("dashboard") {
-            LeaveDashboardScreen(
-                onNavigateToCl = { navController.navigate("entry/CL") },
-                onNavigateToEl = { navController.navigate("entry/EL") },
-                onNavigateToHpl = { navController.navigate("entry/HPL") },
-                onNavigateToWo = { navController.navigate("entry/WO") },
-                onNavigateToCcl = { navController.navigate("entry/CCL") },
-                onNavigateToMcl = { navController.navigate("entry/MCL") },
-                onNavigateToOther = { navController.navigate("entry/LWA") },
-                onNavigateToApplyLeave = { navController.navigate("apply_leave") },
-                onNavigateToReports = { navController.navigate("history") },
-                userViewModel = userViewModel,
-                leaveViewModel = leaveViewModel
-            )
-        }
-        composable(
-            route = "entry/{type}",
-            arguments = listOf(navArgument("type") { type = NavType.StringType })
-        ) { backStackEntry ->
-            val type = backStackEntry.arguments?.getString("type") ?: "CL"
-            LeaveEntryScreen(
-                onNavigateBack = { navController.popBackStack() },
-                onNavigateToApplyLeave = { type -> navController.navigate("apply_leave/$type") },
-                preselectedType = type,
-                userViewModel = userViewModel,
-                leaveViewModel = leaveViewModel
-            )
-        }
-        composable(
-            route = "apply_leave/{type}",
-            arguments = listOf(navArgument("type") { defaultValue = "CL"; type = NavType.StringType })
-        ) { backStackEntry ->
-            val type = backStackEntry.arguments?.getString("type") ?: "CL"
-            ApplyLeaveScreen(
-                onNavigateBack = { navController.popBackStack() },
-                userViewModel = userViewModel,
-                leaveViewModel = leaveViewModel,
-                initialType = type
-            )
-        }
-        composable("apply_leave") {
-            ApplyLeaveScreen(
-                onNavigateBack = { navController.popBackStack() },
-                userViewModel = userViewModel,
-                leaveViewModel = leaveViewModel,
-                initialType = "CL"
-            )
-        }
-        composable("history") {
-            LeaveHistoryScreen(
-                onNavigateBack = { navController.popBackStack() },
-                userViewModel = userViewModel,
-                leaveViewModel = leaveViewModel
-            )
+        NavHost(
+            navController = navController,
+            startDestination = "login"
+        ) {
+            composable("login") {
+                LoginScreen(
+                    onLoginSuccess = { user ->
+                        userViewModel.setUser(user)
+                        navController.navigate("dashboard") { 
+                            popUpTo("login") { inclusive = true } 
+                        } 
+                    },
+                    onRegisterClick = {
+                        navController.navigate("register")
+                    }
+                )
+            }
+            composable("register") {
+                RegistrationScreen(
+                    onRegistrationSuccess = {
+                        navController.navigate("login") {
+                            popUpTo("register") { inclusive = true }
+                        }
+                    }
+                )
+            }
+            composable("dashboard") {
+                LeaveDashboardScreen(
+                    onNavigateToCl = { navController.navigate("entry/CL") },
+                    onNavigateToEl = { navController.navigate("entry/EL") },
+                    onNavigateToHpl = { navController.navigate("entry/HPL") },
+                    onNavigateToWo = { navController.navigate("entry/WO") },
+                    onNavigateToCcl = { navController.navigate("entry/CCL") },
+                    onNavigateToMcl = { navController.navigate("entry/MCL") },
+                    onNavigateToOther = { navController.navigate("entry/LWA") },
+                    onNavigateToApplyLeave = { navController.navigate("apply_leave") },
+                    onNavigateToReports = { navController.navigate("history") },
+                    onNavigateToRules = { navController.navigate("rules") },
+                    userViewModel = userViewModel,
+                    leaveViewModel = leaveViewModel,
+                    onOpenDrawer = { scope.launch { drawerState.open() } }
+                )
+            }
+            composable(
+                route = "entry/{type}",
+                arguments = listOf(navArgument("type") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val type = backStackEntry.arguments?.getString("type") ?: "CL"
+                LeaveEntryScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    onNavigateToApplyLeave = { type -> navController.navigate("apply_leave/$type") },
+                    preselectedType = type,
+                    userViewModel = userViewModel,
+                    leaveViewModel = leaveViewModel
+                )
+            }
+            composable(
+                route = "apply_leave/{type}",
+                arguments = listOf(navArgument("type") { defaultValue = "CL"; type = NavType.StringType })
+            ) { backStackEntry ->
+                val type = backStackEntry.arguments?.getString("type") ?: "CL"
+                ApplyLeaveScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    userViewModel = userViewModel,
+                    leaveViewModel = leaveViewModel,
+                    initialType = type
+                )
+            }
+            composable("apply_leave") {
+                ApplyLeaveScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    userViewModel = userViewModel,
+                    leaveViewModel = leaveViewModel,
+                    initialType = "CL"
+                )
+            }
+            composable("history") {
+                LeaveHistoryScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    userViewModel = userViewModel,
+                    leaveViewModel = leaveViewModel
+                )
+            }
+            composable("rules") {
+                LeaveRulesScreen(
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+            composable("settings") {
+                SettingsScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    userViewModel = userViewModel
+                )
+            }
         }
     }
 }

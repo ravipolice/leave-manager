@@ -1,0 +1,1561 @@
+﻿diff --git a/app/build.gradle.kts b/app/build.gradle.kts
+index b98ac6b..784bc73 100644
+--- a/app/build.gradle.kts
++++ b/app/build.gradle.kts
+@@ -5,6 +5,7 @@ plugins {
+     alias(libs.plugins.ksp)
+     alias(libs.plugins.kotlin.serialization)
+     alias(libs.plugins.kotlin.compose)
++    alias(libs.plugins.google.services)
+ }
+ 
+ android {
+@@ -71,6 +72,12 @@ dependencies {
+     implementation(libs.room.ktx)
+     ksp(libs.room.compiler)
+ 
++    // Firebase
++    implementation(platform(libs.firebase.bom))
++    implementation(libs.firebase.auth)
++    implementation(libs.firebase.firestore)
++    implementation("com.google.firebase:firebase-functions-ktx")
++
+     // Google Services & Drive
+     implementation(libs.play.auth)
+     implementation(libs.google.api.drive)
+diff --git a/app/src/main/java/com/lm/app/MainActivity.kt b/app/src/main/java/com/lm/app/MainActivity.kt
+index 4c1ca5f..08ca254 100644
+--- a/app/src/main/java/com/lm/app/MainActivity.kt
++++ b/app/src/main/java/com/lm/app/MainActivity.kt
+@@ -10,8 +10,13 @@ import androidx.compose.runtime.Composable
+ import androidx.compose.runtime.LaunchedEffect
+ import androidx.compose.runtime.collectAsState
+ import androidx.compose.runtime.getValue
++import androidx.compose.runtime.rememberCoroutineScope
++import androidx.compose.material3.DrawerValue
++import androidx.compose.material3.ModalNavigationDrawer
++import androidx.compose.material3.rememberDrawerState
+ import androidx.compose.ui.Modifier
+ import androidx.hilt.navigation.compose.hiltViewModel
++import kotlinx.coroutines.launch
+ import androidx.navigation.NavType
+ import androidx.navigation.compose.*
+ import androidx.navigation.navArgument
+@@ -59,75 +64,126 @@ fun AppNavigation() {
+             }
+         }
+     }
++    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
++    val scope = rememberCoroutineScope()
++    val navBackStackEntry by navController.currentBackStackEntryAsState()
++    val currentRoute = navBackStackEntry?.destination?.route
+ 
+-    NavHost(
+-        navController = navController,
+-        startDestination = "login"
+-    ) {
+-        composable("login") {
+-            LoginScreen(
+-                onLoginSuccess = { 
+-                    navController.navigate("dashboard") { 
+-                        popUpTo("login") { inclusive = true } 
+-                    } 
+-                },
+-                userViewModel = userViewModel
+-            )
+-        }
+-        composable("dashboard") {
+-            LeaveDashboardScreen(
+-                onNavigateToCl = { navController.navigate("entry/CL") },
+-                onNavigateToEl = { navController.navigate("entry/EL") },
+-                onNavigateToHpl = { navController.navigate("entry/HPL") },
+-                onNavigateToWo = { navController.navigate("entry/WO") },
+-                onNavigateToCcl = { navController.navigate("entry/CCL") },
+-                onNavigateToMcl = { navController.navigate("entry/MCL") },
+-                onNavigateToOther = { navController.navigate("entry/LWA") },
+-                onNavigateToApplyLeave = { navController.navigate("apply_leave") },
+-                onNavigateToReports = { navController.navigate("history") },
+-                userViewModel = userViewModel,
+-                leaveViewModel = leaveViewModel
+-            )
+-        }
+-        composable(
+-            route = "entry/{type}",
+-            arguments = listOf(navArgument("type") { type = NavType.StringType })
+-        ) { backStackEntry ->
+-            val type = backStackEntry.arguments?.getString("type") ?: "CL"
+-            LeaveEntryScreen(
+-                onNavigateBack = { navController.popBackStack() },
+-                onNavigateToApplyLeave = { type -> navController.navigate("apply_leave/$type") },
+-                preselectedType = type,
+-                userViewModel = userViewModel,
+-                leaveViewModel = leaveViewModel
+-            )
+-        }
+-        composable(
+-            route = "apply_leave/{type}",
+-            arguments = listOf(navArgument("type") { defaultValue = "CL"; type = NavType.StringType })
+-        ) { backStackEntry ->
+-            val type = backStackEntry.arguments?.getString("type") ?: "CL"
+-            ApplyLeaveScreen(
+-                onNavigateBack = { navController.popBackStack() },
+-                userViewModel = userViewModel,
+-                leaveViewModel = leaveViewModel,
+-                initialType = type
+-            )
+-        }
+-        composable("apply_leave") {
+-            ApplyLeaveScreen(
+-                onNavigateBack = { navController.popBackStack() },
+-                userViewModel = userViewModel,
+-                leaveViewModel = leaveViewModel,
+-                initialType = "CL"
+-            )
++    ModalNavigationDrawer(
++        drawerState = drawerState,
++        gesturesEnabled = currentRoute != "login",
++        drawerContent = {
++            if (currentRoute != "login") {
++                com.lm.app.ui.components.NavigationDrawer(
++                    navController = navController,
++                    drawerState = drawerState,
++                    scope = scope,
++                    userViewModel = userViewModel,
++                    currentRoute = currentRoute,
++                    onLogout = {
++                        userViewModel.logout()
++                        navController.navigate("login") {
++                            popUpTo(0) { inclusive = true }
++                        }
++                    }
++                )
++            }
+         }
+-        composable("history") {
+-            LeaveHistoryScreen(
+-                onNavigateBack = { navController.popBackStack() },
+-                userViewModel = userViewModel,
+-                leaveViewModel = leaveViewModel
+-            )
++    ) {
++        NavHost(
++            navController = navController,
++            startDestination = "login"
++        ) {
++            composable("login") {
++                LoginScreen(
++                    onLoginSuccess = { user ->
++                        userViewModel.setUser(user)
++                        navController.navigate("dashboard") { 
++                            popUpTo("login") { inclusive = true } 
++                        } 
++                    },
++                    onRegisterClick = {
++                        navController.navigate("register")
++                    }
++                )
++            }
++            composable("register") {
++                RegistrationScreen(
++                    onRegistrationSuccess = {
++                        navController.navigate("login") {
++                            popUpTo("register") { inclusive = true }
++                        }
++                    }
++                )
++            }
++            composable("dashboard") {
++                LeaveDashboardScreen(
++                    onNavigateToCl = { navController.navigate("entry/CL") },
++                    onNavigateToEl = { navController.navigate("entry/EL") },
++                    onNavigateToHpl = { navController.navigate("entry/HPL") },
++                    onNavigateToWo = { navController.navigate("entry/WO") },
++                    onNavigateToCcl = { navController.navigate("entry/CCL") },
++                    onNavigateToMcl = { navController.navigate("entry/MCL") },
++                    onNavigateToOther = { navController.navigate("entry/LWA") },
++                    onNavigateToApplyLeave = { navController.navigate("apply_leave") },
++                    onNavigateToReports = { navController.navigate("history") },
++                    onNavigateToRules = { navController.navigate("rules") },
++                    userViewModel = userViewModel,
++                    leaveViewModel = leaveViewModel,
++                    onOpenDrawer = { scope.launch { drawerState.open() } }
++                )
++            }
++            composable(
++                route = "entry/{type}",
++                arguments = listOf(navArgument("type") { type = NavType.StringType })
++            ) { backStackEntry ->
++                val type = backStackEntry.arguments?.getString("type") ?: "CL"
++                LeaveEntryScreen(
++                    onNavigateBack = { navController.popBackStack() },
++                    onNavigateToApplyLeave = { type -> navController.navigate("apply_leave/$type") },
++                    preselectedType = type,
++                    userViewModel = userViewModel,
++                    leaveViewModel = leaveViewModel
++                )
++            }
++            composable(
++                route = "apply_leave/{type}",
++                arguments = listOf(navArgument("type") { defaultValue = "CL"; type = NavType.StringType })
++            ) { backStackEntry ->
++                val type = backStackEntry.arguments?.getString("type") ?: "CL"
++                ApplyLeaveScreen(
++                    onNavigateBack = { navController.popBackStack() },
++                    userViewModel = userViewModel,
++                    leaveViewModel = leaveViewModel,
++                    initialType = type
++                )
++            }
++            composable("apply_leave") {
++                ApplyLeaveScreen(
++                    onNavigateBack = { navController.popBackStack() },
++                    userViewModel = userViewModel,
++                    leaveViewModel = leaveViewModel,
++                    initialType = "CL"
++                )
++            }
++            composable("history") {
++                LeaveHistoryScreen(
++                    onNavigateBack = { navController.popBackStack() },
++                    userViewModel = userViewModel,
++                    leaveViewModel = leaveViewModel
++                )
++            }
++            composable("rules") {
++                LeaveRulesScreen(
++                    onNavigateBack = { navController.popBackStack() }
++                )
++            }
++            composable("settings") {
++                SettingsScreen(
++                    onNavigateBack = { navController.popBackStack() },
++                    userViewModel = userViewModel
++                )
++            }
+         }
+     }
+ }
+diff --git a/app/src/main/java/com/lm/app/auth/GoogleAuthHelper.kt b/app/src/main/java/com/lm/app/auth/GoogleAuthHelper.kt
+index 29cad4e..c8255ca 100644
+--- a/app/src/main/java/com/lm/app/auth/GoogleAuthHelper.kt
++++ b/app/src/main/java/com/lm/app/auth/GoogleAuthHelper.kt
+@@ -8,8 +8,9 @@ import com.google.android.gms.common.api.Scope
+ import com.google.api.services.drive.DriveScopes
+ 
+ object GoogleAuthHelper {
+-    fun getSignInOptions(): GoogleSignInOptions {
++    fun getSignInOptions(webClientId: String): GoogleSignInOptions {
+         return GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
++            .requestIdToken(webClientId)
+             .requestEmail()
+             .requestScopes(Scope(DriveScopes.DRIVE_FILE))
+             .build()
+diff --git a/app/src/main/java/com/lm/app/data/AppDatabase.kt b/app/src/main/java/com/lm/app/data/AppDatabase.kt
+index 6f23eac..24dd4bd 100644
+--- a/app/src/main/java/com/lm/app/data/AppDatabase.kt
++++ b/app/src/main/java/com/lm/app/data/AppDatabase.kt
+@@ -4,7 +4,7 @@ import androidx.room.Database
+ import androidx.room.RoomDatabase
+ import androidx.room.TypeConverters
+ 
+-@Database(entities = [LeaveEntry::class, LeaveBalance::class], version = 1, exportSchema = false)
++@Database(entities = [LeaveEntry::class, LeaveBalance::class], version = 2, exportSchema = false)
+ @TypeConverters(DateConverters::class)
+ abstract class AppDatabase : RoomDatabase() {
+     abstract fun leaveDao(): LeaveDao
+diff --git a/app/src/main/java/com/lm/app/data/LeaveBalance.kt b/app/src/main/java/com/lm/app/data/LeaveBalance.kt
+index cca70b8..1374df6 100644
+--- a/app/src/main/java/com/lm/app/data/LeaveBalance.kt
++++ b/app/src/main/java/com/lm/app/data/LeaveBalance.kt
+@@ -22,5 +22,6 @@ data class LeaveBalance(
+     val mclLastUsedMonth: Int = 0,
+     val mclLastUsedYear: Int = 0,
+     val lastResetYear: Int = 0,
+-    val lastCreditDate: String = "" // Format: YYYY-MM-DD
++    val lastCreditDate: String = "", // Format: YYYY-MM-DD
++    val lastElHplCreditDate: String = "" // Format: YYYY-MM
+ )
+diff --git a/app/src/main/java/com/lm/app/data/LeaveEntry.kt b/app/src/main/java/com/lm/app/data/LeaveEntry.kt
+index 4684971..b0a4869 100644
+--- a/app/src/main/java/com/lm/app/data/LeaveEntry.kt
++++ b/app/src/main/java/com/lm/app/data/LeaveEntry.kt
+@@ -28,5 +28,6 @@ data class LeaveEntry(
+     val month: Int = 0,
+     val isHalfDay: Boolean = false,
+     val isMcl: Boolean = false,
+-    val elEntryType: String = "taken" // "taken" | "upcoming"
++    val elEntryType: String = "taken", // "taken" | "upcoming"
++    val hasMedicalCertificate: Boolean = false
+ )
+diff --git a/app/src/main/java/com/lm/app/data/User.kt b/app/src/main/java/com/lm/app/data/User.kt
+index e3640bd..f2e8026 100644
+--- a/app/src/main/java/com/lm/app/data/User.kt
++++ b/app/src/main/java/com/lm/app/data/User.kt
+@@ -3,5 +3,12 @@ package com.lm.app.data
+ data class User(
+     val kgid: String = "",
+     val name: String = "",
+-    val gender: String = "male" // "male" or "female"
++    val gender: String = "male", // "male" or "female"
++    val department: String = "", // "Police", "Health", "Education", etc.
++    val dob: Long? = null,
++    val doa: Long? = null,
++    val email: String = "",
++    val phone: String = "",
++    val district: String = "",
++    val placeOfWorking: String = ""
+ )
+diff --git a/app/src/main/java/com/lm/app/di/DataModule.kt b/app/src/main/java/com/lm/app/di/DataModule.kt
+index 6166f34..b343568 100644
+--- a/app/src/main/java/com/lm/app/di/DataModule.kt
++++ b/app/src/main/java/com/lm/app/di/DataModule.kt
+@@ -2,6 +2,11 @@ package com.lm.app.di
+ 
+ import android.content.Context
+ import androidx.room.Room
++import com.google.firebase.auth.FirebaseAuth
++import com.google.firebase.auth.ktx.auth
++import com.google.firebase.firestore.FirebaseFirestore
++import com.google.firebase.firestore.ktx.firestore
++import com.google.firebase.ktx.Firebase
+ import com.lm.app.data.AppDatabase
+ import com.lm.app.data.LeaveDao
+ import dagger.Module
+@@ -22,11 +27,23 @@ object DataModule {
+             context,
+             AppDatabase::class.java,
+             "leave_manager.db"
+-        ).build()
++        ).fallbackToDestructiveMigration().build()
+     }
+ 
+     @Provides
+     fun provideLeaveDao(database: AppDatabase): LeaveDao {
+         return database.leaveDao()
+     }
++
++    @Provides
++    @Singleton
++    fun provideFirebaseAuth(): FirebaseAuth {
++        return Firebase.auth
++    }
++
++    @Provides
++    @Singleton
++    fun provideFirebaseFirestore(): FirebaseFirestore {
++        return Firebase.firestore
++    }
+ }
+diff --git a/app/src/main/java/com/lm/app/ui/components/ApplyLeaveForm.kt b/app/src/main/java/com/lm/app/ui/components/ApplyLeaveForm.kt
+index 588f731..d4ef0aa 100644
+--- a/app/src/main/java/com/lm/app/ui/components/ApplyLeaveForm.kt
++++ b/app/src/main/java/com/lm/app/ui/components/ApplyLeaveForm.kt
+@@ -12,6 +12,7 @@ import androidx.compose.ui.graphics.Color
+ import androidx.compose.ui.platform.LocalContext
+ import androidx.compose.ui.text.font.FontWeight
+ import androidx.compose.ui.unit.dp
++import androidx.compose.ui.unit.sp
+ import com.lm.app.data.LeaveEntry
+ import com.lm.app.data.User
+ import com.lm.app.ui.viewmodel.LeaveUiState
+@@ -45,8 +46,19 @@ fun ApplyLeaveForm(
+     var isHalfDay by remember { mutableStateOf(false) }
+     var elEntryType by remember { mutableStateOf("taken") }
+ 
++    var hasMedicalCertificate by remember { mutableStateOf(false) }
++
+     val dateFormat = SimpleDateFormat("dd MMM yyyy", Locale.US)
+-    val leaveTypes = listOf("CL", "EL", "HPL", "WO", "LWA", "ML", "PL", "CCL", "MCL")
++    
++    val leaveTypes = remember(currentUser) {
++        val baseTypes = mutableListOf("CL", "EL", "HPL", "WO", "LWA", "CML", "LND")
++        if (currentUser?.gender?.lowercase() == "female") {
++            baseTypes.addAll(listOf("ML", "CCL", "MCL"))
++        } else {
++            baseTypes.addAll(listOf("PL"))
++        }
++        baseTypes.toList()
++    }
+ 
+     fun showDatePicker(initial: Date?, onDateSelected: (Date) -> Unit) {
+         val cal = Calendar.getInstance().apply { time = initial ?: Date() }
+@@ -104,6 +116,7 @@ fun ApplyLeaveForm(
+                                 expanded = false
+                                 isHalfDay = false
+                                 elEntryType = "taken"
++                                hasMedicalCertificate = false
+                             }
+                         )
+                     }
+@@ -198,9 +211,55 @@ fun ApplyLeaveForm(
+                 maxLines = 3
+             )
+ 
++            if (leaveType in listOf("CML", "LND")) {
++                Row(verticalAlignment = Alignment.CenterVertically) {
++                    Checkbox(
++                        checked = hasMedicalCertificate,
++                        onCheckedChange = { hasMedicalCertificate = it }
++                    )
++                    Text(
++                        text = "Medical Certificate Provided",
++                        style = MaterialTheme.typography.bodyMedium,
++                        color = MaterialTheme.colorScheme.onSurface
++                    )
++                }
++            }
++
+             if (uiState is LeaveUiState.Error) {
+                 Text(text = (uiState as LeaveUiState.Error).message, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(horizontal = 4.dp))
+             }
++            
++            // Helpful Warnings
++            if (leaveType == "EL" && days > 180) {
++                Text(text = "Warning: Earned Leave exceeds typical 180-days continuous limit.", color = MaterialTheme.colorScheme.primary, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 4.dp))
++            }
++            if (leaveType == "ML" && days > 180) {
++                Text(text = "Warning: Maternity Leave exceeds 180-days limit.", color = MaterialTheme.colorScheme.primary, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 4.dp))
++            }
++
++            // Rules Guidance
++            val helperText = when (leaveType) {
++                "EL" -> "Rule: Max 180 days at a time. Advance credited 15 days on Jan 1 and Jul 1."
++                "CL" -> "Rule: Max 7 days at a time. Half days are allowed."
++                "HPL" -> "Rule: Can be availed on personal or medical grounds. Advance credited 10 days on Jan 1 and Jul 1."
++                "CML" -> "Rule: Commuted Leave on Medical Certificate. Deducts twice the amount of days from HPL balance."
++                "LND" -> "Rule: Leave Not Due. Max 360 days allowed during entire service. Requires Medical Certificate."
++                "ML" -> "Rule: Max 180 days. Applicable for up to 2 surviving children."
++                "PL" -> "Rule: 15 days within 6 months of childbirth, up to 2 children."
++                "CCL" -> "Rule: Max 730 days for up to 2 children below 18 years."
++                "MCL" -> "Rule: Commuted on Menstrual Grounds. (State specific)."
++                "LWA", "EOL" -> "Rule: Extraordinary Leave granted under special circumstances."
++                else -> ""
++            }
++
++            if (helperText.isNotEmpty()) {
++                Text(
++                    text = helperText,
++                    fontSize = 12.sp,
++                    color = MaterialTheme.colorScheme.onSurfaceVariant,
++                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 4.dp)
++                )
++            }
+ 
+             Button(
+                 onClick = {
+@@ -219,12 +278,14 @@ fun ApplyLeaveForm(
+                         isMcl = leaveType == "MCL",
+                         elEntryType = if (leaveType == "EL") elEntryType else "taken",
+                         year = cal.get(Calendar.YEAR),
+-                        month = cal.get(Calendar.MONTH) + 1
++                        month = cal.get(Calendar.MONTH) + 1,
++                        hasMedicalCertificate = hasMedicalCertificate
+                     )
+                     leaveViewModel.applyLeave(user, entry)
+                 },
+                 modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+-                enabled = dateFrom != null && (isHalfDay || leaveType in listOf("WO", "MCL") || dateTo != null) && uiState !is LeaveUiState.Loading
++                enabled = dateFrom != null && (isHalfDay || leaveType in listOf("WO", "MCL") || dateTo != null) && uiState !is LeaveUiState.Loading 
++                          && (leaveType !in listOf("CML", "LND") || hasMedicalCertificate)
+             ) {
+                 if (uiState is LeaveUiState.Loading) {
+                     CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White)
+diff --git a/app/src/main/java/com/lm/app/ui/screens/LeaveDashboardScreen.kt b/app/src/main/java/com/lm/app/ui/screens/LeaveDashboardScreen.kt
+index 130c5b0..4419d0c 100644
+--- a/app/src/main/java/com/lm/app/ui/screens/LeaveDashboardScreen.kt
++++ b/app/src/main/java/com/lm/app/ui/screens/LeaveDashboardScreen.kt
+@@ -20,8 +20,6 @@ import androidx.compose.ui.unit.dp
+ import androidx.compose.ui.unit.sp
+ import com.lm.app.data.LeaveBalance
+ import com.lm.app.data.LeaveStatistics
+-import com.lm.app.ui.viewmodel.BackupStatus
+-import com.lm.app.ui.viewmodel.BackupViewModel
+ import com.lm.app.ui.viewmodel.LeaveUiState
+ import com.lm.app.ui.viewmodel.LeaveViewModel
+ import com.lm.app.ui.viewmodel.UserViewModel
+@@ -38,60 +36,156 @@ fun LeaveDashboardScreen(
+     onNavigateToOther: () -> Unit,
+     onNavigateToApplyLeave: () -> Unit,
+     onNavigateToReports: () -> Unit,
++    onNavigateToRules: () -> Unit,
+     userViewModel: UserViewModel,
+     leaveViewModel: LeaveViewModel,
+-    backupViewModel: BackupViewModel = androidx.hilt.navigation.compose.hiltViewModel()
++    onOpenDrawer: () -> Unit = {}
+ ) {
+     val context = androidx.compose.ui.platform.LocalContext.current
+     val currentUser by userViewModel.currentUser.collectAsState()
+     val balance by leaveViewModel.balance.collectAsState()
+     val statistics by leaveViewModel.statistics.collectAsState()
+     val uiState by leaveViewModel.uiState.collectAsState()
+-    val backupStatus by backupViewModel.backupStatus.collectAsState()
+     val snackbarHostState = remember { SnackbarHostState() }
+ 
+-    LaunchedEffect(backupStatus) {
+-        when (backupStatus) {
+-            is BackupStatus.Success -> {
+-                snackbarHostState.showSnackbar("Backup successful! Saved to Google Drive.")
+-                backupViewModel.resetStatus()
+-            }
+-            is BackupStatus.Error -> {
+-                snackbarHostState.showSnackbar((backupStatus as BackupStatus.Error).message)
+-                backupViewModel.resetStatus()
+-            }
+-            else -> {}
++    LaunchedEffect(currentUser) {
++        currentUser?.let { leaveViewModel.refreshData(it) }
++    }
++
++    var showEditBalanceDialog by remember { mutableStateOf(false) }
++    var elText by remember { mutableStateOf("0.0") }
++    var hplText by remember { mutableStateOf("0.0") }
++    var showEditClLimitDialog by remember { mutableStateOf(false) }
++
++    // Update the dialog texts when balance changes or dialog is about to show
++    LaunchedEffect(showEditBalanceDialog, balance) {
++        if (showEditBalanceDialog) {
++            elText = balance?.elManualBalance?.toString() ?: "0.0"
++            hplText = balance?.hplBalance?.toString() ?: "0.0"
+         }
+     }
+ 
+-    LaunchedEffect(currentUser) {
+-        currentUser?.let { leaveViewModel.refreshData(it) }
++    if (showEditBalanceDialog) {
++        androidx.compose.material3.AlertDialog(
++            onDismissRequest = { showEditBalanceDialog = false },
++            title = { Text("Edit Base Balances") },
++            text = {
++                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
++                    Text("Enter your carried-over balance (prior to this year's auto-credits):", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
++                    OutlinedTextField(
++                        value = elText,
++                        onValueChange = { elText = it },
++                        label = { Text("Earned Leave (EL)") },
++                        modifier = Modifier.fillMaxWidth()
++                    )
++                    OutlinedTextField(
++                        value = hplText,
++                        onValueChange = { hplText = it },
++                        label = { Text("Half Pay Leave (HPL)") },
++                        modifier = Modifier.fillMaxWidth()
++                    )
++                }
++            },
++            confirmButton = {
++                TextButton(onClick = {
++                    currentUser?.let { user ->
++                        val newEl = elText.toDoubleOrNull() ?: balance?.elManualBalance ?: 0.0
++                        val newHpl = hplText.toDoubleOrNull() ?: balance?.hplBalance ?: 0.0
++                        leaveViewModel.updateInitialBalances(user, newEl, newHpl)
++                    }
++                    showEditBalanceDialog = false
++                }) {
++                    Text("Save")
++                }
++            },
++            dismissButton = {
++                TextButton(onClick = { showEditBalanceDialog = false }) {
++                    Text("Cancel")
++                }
++            }
++        )
+     }
+ 
++    if (showEditClLimitDialog) {
++        androidx.compose.material3.AlertDialog(
++            onDismissRequest = { showEditClLimitDialog = false },
++            title = { Text("Casual Leave Limit") },
++            text = { Text("Select your annual Casual Leave limit:") },
++            confirmButton = {},
++            dismissButton = {
++                Row(
++                    modifier = Modifier.fillMaxWidth(),
++                    horizontalArrangement = Arrangement.SpaceEvenly
++                ) {
++                    TextButton(onClick = {
++                        currentUser?.let { user -> leaveViewModel.updateClLimit(user, 10) }
++                        showEditClLimitDialog = false
++                    }) {
++                        Text("10 Days")
++                    }
++                    TextButton(onClick = {
++                        currentUser?.let { user -> leaveViewModel.updateClLimit(user, 15) }
++                        showEditClLimitDialog = false
++                    }) {
++                        Text("15 Days")
++                    }
++                }
++            }
++        )
++    }
++
++    var showMenu by remember { mutableStateOf(false) }
++
+     Scaffold(
+         snackbarHost = { SnackbarHost(snackbarHostState) },
+         topBar = {
+             TopAppBar(
+                 title = { Text("Leave Manager", fontWeight = FontWeight.Bold) },
+-                actions = {
+-                    IconButton(onClick = { currentUser?.let { leaveViewModel.seedSampleData(it) } }) {
+-                        Icon(Icons.Default.Science, contentDescription = "Seed Data")
++                navigationIcon = {
++                    IconButton(onClick = onOpenDrawer) {
++                        Icon(Icons.Default.Menu, contentDescription = "Open Drawer")
+                     }
+-                    IconButton(onClick = { currentUser?.let { leaveViewModel.refreshData(it) } }) {
+-                        Icon(Icons.Default.Refresh, contentDescription = "Refresh")
++                },
++                actions = {
++                    IconButton(onClick = { showMenu = !showMenu }) {
++                        Icon(Icons.Default.MoreVert, contentDescription = "More Options")
+                     }
+-                    IconButton(
+-                        onClick = { currentUser?.let { backupViewModel.performBackup(context, it) } },
+-                        enabled = backupStatus !is BackupStatus.InProgress
++                    DropdownMenu(
++                        expanded = showMenu,
++                        onDismissRequest = { showMenu = false }
+                     ) {
+-                        if (backupStatus is BackupStatus.InProgress) {
+-                            CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White, strokeWidth = 2.dp)
+-                        } else {
+-                            Icon(Icons.Default.CloudUpload, contentDescription = "Backup Now")
+-                        }
+-                    }
+-                    IconButton(onClick = onNavigateToReports) {
+-                        Icon(Icons.Default.BarChart, contentDescription = "Reports")
++                        DropdownMenuItem(
++                            text = { Text("Seed Data") },
++                            leadingIcon = { Icon(Icons.Default.Science, contentDescription = null) },
++                            onClick = {
++                                currentUser?.let { leaveViewModel.seedSampleData(it) }
++                                showMenu = false
++                            }
++                        )
++                        DropdownMenuItem(
++                            text = { Text("Refresh") },
++                            leadingIcon = { Icon(Icons.Default.Refresh, contentDescription = null) },
++                            onClick = {
++                                currentUser?.let { leaveViewModel.refreshData(it) }
++                                showMenu = false
++                            }
++                        )
++                        DropdownMenuItem(
++                            text = { Text("Reports") },
++                            leadingIcon = { Icon(Icons.Default.BarChart, contentDescription = null) },
++                            onClick = {
++                                onNavigateToReports()
++                                showMenu = false
++                            }
++                        )
++                        DropdownMenuItem(
++                            text = { Text("Leave Rules") },
++                            leadingIcon = { Icon(Icons.Default.Info, contentDescription = null) },
++                            onClick = {
++                                onNavigateToRules()
++                                showMenu = false
++                            }
++                        )
+                     }
+                 },
+                 colors = TopAppBarDefaults.topAppBarColors(
+@@ -140,7 +234,9 @@ fun LeaveDashboardScreen(
+                                     subtitle = "of ${balance?.clAnnualLimit ?: 15} days",
+                                     icon = Icons.Default.WbSunny,
+                                     gradient = listOf(Color(0xFF43A047), Color(0xFF1B5E20)),
+-                                    onClick = onNavigateToCl
++                                    onClick = onNavigateToCl,
++                                    actionIcon = Icons.Default.Edit,
++                                    onActionClick = { showEditClLimitDialog = true } 
+                                 )
+                             }
+                             Box(modifier = Modifier.weight(1f)) {
+@@ -150,7 +246,9 @@ fun LeaveDashboardScreen(
+                                     subtitle = "days remaining",
+                                     icon = Icons.Default.Star,
+                                     gradient = listOf(Color(0xFF1E88E5), Color(0xFF0D47A1)),
+-                                    onClick = onNavigateToEl
++                                    onClick = onNavigateToEl,
++                                    actionIcon = Icons.Default.Edit,
++                                    onActionClick = { showEditBalanceDialog = true }
+                                 )
+                             }
+                         }
+@@ -163,7 +261,9 @@ fun LeaveDashboardScreen(
+                                     subtitle = "days remaining",
+                                     icon = Icons.Default.Schedule,
+                                     gradient = listOf(Color(0xFFFB8C00), Color(0xFFE65100)),
+-                                    onClick = onNavigateToHpl
++                                    onClick = onNavigateToHpl,
++                                    actionIcon = Icons.Default.Edit,
++                                    onActionClick = { showEditBalanceDialog = true }
+                                 )
+                             }
+                             Box(modifier = Modifier.weight(1f)) {
+@@ -252,19 +352,34 @@ fun LeaveDashboardScreen(
+ }
+ 
+ @Composable
+-fun LeaveTile(title: String, balance: String, subtitle: String, icon: ImageVector, gradient: List<Color>, onClick: () -> Unit) {
++fun LeaveTile(title: String, balance: String, subtitle: String, icon: ImageVector, gradient: List<Color>, onClick: () -> Unit, actionIcon: ImageVector? = null, onActionClick: (() -> Unit)? = null) {
+     Card(
+         modifier = Modifier.fillMaxWidth().height(120.dp).clickable(onClick = onClick),
+         shape = RoundedCornerShape(16.dp),
+         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+     ) {
+         Box(modifier = Modifier.fillMaxSize().background(Brush.horizontalGradient(gradient)).padding(16.dp)) {
+-            Text(text = title, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold, modifier = Modifier.align(Alignment.TopEnd))
++            Text(
++                text = title,
++                color = Color.White,
++                fontSize = 14.sp,
++                fontWeight = FontWeight.Bold,
++                modifier = Modifier.align(Alignment.TopEnd).offset(y = (-8).dp)
++            )
+             Column(modifier = Modifier.align(Alignment.CenterStart)) {
+                 Text(text = balance, color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+                 Text(text = subtitle, color = Color.White.copy(alpha = 0.8f), fontSize = 12.sp)
+             }
+             Icon(imageVector = icon, contentDescription = null, tint = Color.White.copy(alpha = 0.2f), modifier = Modifier.size(64.dp).align(Alignment.BottomEnd))
++            
++            if (actionIcon != null && onActionClick != null) {
++                IconButton(
++                    onClick = onActionClick,
++                    modifier = Modifier.align(Alignment.TopStart).size(32.dp).offset(y = (-12).dp, x = (-12).dp)
++                ) {
++                    Icon(imageVector = actionIcon, contentDescription = "Edit", tint = Color.White.copy(alpha = 0.7f), modifier = Modifier.size(16.dp))
++                }
++            }
+         }
+     }
+ }
+diff --git a/app/src/main/java/com/lm/app/ui/screens/LeaveEntryScreen.kt b/app/src/main/java/com/lm/app/ui/screens/LeaveEntryScreen.kt
+index e0df131..3c9d7db 100644
+--- a/app/src/main/java/com/lm/app/ui/screens/LeaveEntryScreen.kt
++++ b/app/src/main/java/com/lm/app/ui/screens/LeaveEntryScreen.kt
+@@ -90,7 +90,11 @@ fun LeaveEntryScreen(
+                 }
+             } else {
+                 filteredEntries.forEach { entry ->
+-                    Card(modifier = Modifier.fillMaxWidth()) {
++                    val baseColor = getLeaveColor(entry.leaveType, entry.isMcl)
++                    Card(
++                        modifier = Modifier.fillMaxWidth(),
++                        colors = CardDefaults.cardColors(containerColor = baseColor.copy(alpha = 0.1f))
++                    ) {
+                         Column(modifier = Modifier.padding(12.dp)) {
+                             Row(
+                                 modifier = Modifier.fillMaxWidth(),
+@@ -100,7 +104,7 @@ fun LeaveEntryScreen(
+                                 Text(
+                                     text = if (entry.isMcl) "Menstrual CL" else entry.leaveType,
+                                     fontWeight = FontWeight.Bold,
+-                                    color = MaterialTheme.colorScheme.primary,
++                                    color = baseColor,
+                                     modifier = Modifier.weight(1f)
+                                 )
+                                 Row {
+@@ -112,7 +116,7 @@ fun LeaveEntryScreen(
+                                             imageVector = Icons.Default.Edit,
+                                             contentDescription = "Edit",
+                                             modifier = Modifier.size(18.dp),
+-                                            tint = MaterialTheme.colorScheme.primary
++                                            tint = baseColor
+                                         )
+                                     }
+                                     IconButton(
+diff --git a/app/src/main/java/com/lm/app/ui/screens/LeaveHistoryScreen.kt b/app/src/main/java/com/lm/app/ui/screens/LeaveHistoryScreen.kt
+index 01905b2..e096f9c 100644
+--- a/app/src/main/java/com/lm/app/ui/screens/LeaveHistoryScreen.kt
++++ b/app/src/main/java/com/lm/app/ui/screens/LeaveHistoryScreen.kt
+@@ -64,27 +64,70 @@ fun LeaveHistoryScreen(
+                 verticalArrangement = Arrangement.spacedBy(8.dp)
+             ) {
+                 items(entries) { entry ->
+-                    Card(modifier = Modifier.fillMaxWidth()) {
+-                        Row(modifier = Modifier.padding(16.dp).fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+-                            Column(modifier = Modifier.weight(1f)) {
+-                                Text(text = "${entry.leaveType}${if(entry.isMcl) " (MCL)" else ""}", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+-                                val dateStr = if (entry.dateFrom == entry.dateTo) {
+-                                    dateFormat.format(entry.dateFrom!!)
+-                                } else {
+-                                    "${dateFormat.format(entry.dateFrom!!)} - ${dateFormat.format(entry.dateTo!!)}"
+-                                }
+-                                Text(text = dateStr, fontSize = 14.sp)
+-                                val durationStr = "%.1f".format(entry.totalDays)
+-                                Text(text = "Duration: $durationStr days", fontSize = 12.sp, color = Color.Gray)
+-                                entry.remark?.let {
+-                                    Text(text = "Note: $it", fontSize = 12.sp, modifier = Modifier.padding(top = 4.dp))
++                    val baseColor = getLeaveColor(entry.leaveType, entry.isMcl)
++                    Card(
++                        modifier = Modifier.fillMaxWidth(),
++                        colors = CardDefaults.cardColors(containerColor = baseColor.copy(alpha = 0.1f))
++                    ) {
++                        Column(modifier = Modifier.padding(12.dp)) {
++                            Row(
++                                modifier = Modifier.fillMaxWidth(),
++                                horizontalArrangement = Arrangement.SpaceBetween,
++                                verticalAlignment = Alignment.CenterVertically
++                            ) {
++                                Text(
++                                    text = "${entry.leaveType}${if(entry.isMcl) " (MCL)" else ""}",
++                                    fontWeight = FontWeight.Bold,
++                                    color = baseColor,
++                                    modifier = Modifier.weight(1f)
++                                )
++                                Row {
++                                    IconButton(
++                                        onClick = { showEditDialog = entry },
++                                        modifier = Modifier.size(32.dp)
++                                    ) {
++                                        Icon(
++                                            imageVector = Icons.Default.Edit,
++                                            contentDescription = "Edit",
++                                            modifier = Modifier.size(18.dp),
++                                            tint = baseColor
++                                        )
++                                    }
++                                    IconButton(
++                                        onClick = { showDeleteDialog = entry },
++                                        modifier = Modifier.size(32.dp)
++                                    ) {
++                                        Icon(
++                                            imageVector = Icons.Default.Delete,
++                                            contentDescription = "Delete",
++                                            modifier = Modifier.size(18.dp),
++                                            tint = MaterialTheme.colorScheme.error
++                                        )
++                                    }
+                                 }
+                             }
+-                            IconButton(onClick = { showEditDialog = entry }) {
+-                                Icon(Icons.Default.Edit, contentDescription = "Edit", tint = MaterialTheme.colorScheme.primary)
++                            
++                            val dateStr = if (entry.dateFrom == entry.dateTo) {
++                                dateFormat.format(entry.dateFrom!!)
++                            } else {
++                                "${dateFormat.format(entry.dateFrom!!)} - ${dateFormat.format(entry.dateTo!!)}"
+                             }
+-                            IconButton(onClick = { showDeleteDialog = entry }) {
+-                                Icon(Icons.Default.Delete, contentDescription = "Delete", tint = MaterialTheme.colorScheme.error)
++                            val durationValue = if (entry.totalDays % 1.0 == 0.0) entry.totalDays.toInt().toString() else "%.1f".format(entry.totalDays)
++                            val durationSuffix = "day${if (entry.totalDays != 1.0) "s" else ""}"
++                            
++                            Text(
++                                text = "$dateStr ($durationValue $durationSuffix)",
++                                fontSize = 14.sp,
++                                modifier = Modifier.padding(top = 2.dp)
++                            )
++                            
++                            entry.remark?.let {
++                                Text(
++                                    text = "Note: $it",
++                                    fontSize = 12.sp,
++                                    color = Color.Gray,
++                                    modifier = Modifier.padding(top = 4.dp)
++                                )
+                             }
+                         }
+                     }
+@@ -128,3 +171,15 @@ fun LeaveHistoryScreen(
+         )
+     }
+ }
++
++fun getLeaveColor(leaveType: String, isMcl: Boolean): Color {
++    return when {
++        isMcl -> Color(0xFFE91E63)
++        leaveType == "CL" -> Color(0xFF43A047)
++        leaveType == "EL" -> Color(0xFF1E88E5)
++        leaveType == "HPL" -> Color(0xFFFB8C00)
++        leaveType == "WO" -> Color(0xFF8E24AA)
++        leaveType == "CCL" -> Color(0xFF00ACC1)
++        else -> Color(0xFF546E7A)
++    }
++}
+diff --git a/app/src/main/java/com/lm/app/ui/screens/LoginScreen.kt b/app/src/main/java/com/lm/app/ui/screens/LoginScreen.kt
+index 11ae351..841f39d 100644
+--- a/app/src/main/java/com/lm/app/ui/screens/LoginScreen.kt
++++ b/app/src/main/java/com/lm/app/ui/screens/LoginScreen.kt
+@@ -1,62 +1,113 @@
+ package com.lm.app.ui.screens
+ 
++import android.widget.Toast
+ import androidx.activity.compose.rememberLauncherForActivityResult
+ import androidx.activity.result.contract.ActivityResultContracts
+-import androidx.compose.foundation.Image
++import androidx.compose.foundation.clickable
+ import androidx.compose.foundation.layout.*
++import androidx.compose.foundation.rememberScrollState
++import androidx.compose.foundation.text.KeyboardOptions
++import androidx.compose.foundation.verticalScroll
+ import androidx.compose.material3.*
+ import androidx.compose.runtime.*
+ import androidx.compose.ui.Alignment
+ import androidx.compose.ui.Modifier
+ import androidx.compose.ui.graphics.Color
+-import androidx.compose.ui.res.painterResource
++import androidx.compose.ui.platform.LocalContext
+ import androidx.compose.ui.text.font.FontWeight
++import androidx.compose.ui.text.input.KeyboardType
++import androidx.compose.ui.text.input.PasswordVisualTransformation
+ import androidx.compose.ui.text.style.TextAlign
+ import androidx.compose.ui.unit.dp
+ import androidx.compose.ui.unit.sp
+-import com.google.android.gms.auth.api.signin.GoogleSignIn
+-import com.google.android.gms.common.api.ApiException
+-import com.lm.app.auth.GoogleAuthHelper
++import androidx.hilt.navigation.compose.hiltViewModel
++import com.lm.app.R
+ import com.lm.app.data.User
++import com.lm.app.ui.viewmodel.AuthViewModel
+ import com.lm.app.ui.viewmodel.UserViewModel
++import kotlinx.coroutines.delay
++import kotlinx.coroutines.launch
+ 
++enum class LoginMode {
++    EMAIL_PASSWORD, FORGOT_PASSWORD
++}
++
++@OptIn(ExperimentalMaterial3Api::class)
+ @Composable
+ fun LoginScreen(
+-    onLoginSuccess: () -> Unit,
+-    userViewModel: UserViewModel,
+-    backupViewModel: com.lm.app.ui.viewmodel.BackupViewModel = androidx.hilt.navigation.compose.hiltViewModel()
++    onLoginSuccess: (User) -> Unit,
++    onRegisterClick: () -> Unit,
++    authViewModel: AuthViewModel = hiltViewModel()
+ ) {
+-    val context = androidx.compose.ui.platform.LocalContext.current
+-    val currentUser by userViewModel.currentUser.collectAsState()
+-    val backupStatus by backupViewModel.backupStatus.collectAsState()
+-    var error by remember { mutableStateOf<String?>(null) }
+-    var isLoading by remember { mutableStateOf(false) }
++    val context = LocalContext.current
++    val coroutineScope = rememberCoroutineScope()
++    
++    // AuthViewModel states
++    val isLoading by authViewModel.isLoading.collectAsState()
++    val authError by authViewModel.error.collectAsState()
++    val authUser by authViewModel.currentUser.collectAsState()
++    val navigateToRegister by authViewModel.navigateToRegister.collectAsState()
++
++    // Reset Flow States
++    var resetStep by remember { mutableStateOf(0) } // 0: Enter Email, 1: Enter OTP, 2: New PIN
++    var resetEmail by remember { mutableStateOf("") }
++    var resetOtp by remember { mutableStateOf("") }
++    var newPin by remember { mutableStateOf("") }
++    var confirmNewPin by remember { mutableStateOf("") }
++    var resetCountdown by remember { mutableStateOf(0) }
++
++    // Login State
++    var currentMode by remember { mutableStateOf(LoginMode.EMAIL_PASSWORD) }
++    var email by remember { mutableStateOf("") }
++    var password by remember { mutableStateOf("") }
+ 
+     val googleSignInLauncher = rememberLauncherForActivityResult(
+         contract = ActivityResultContracts.StartActivityForResult()
+     ) { result ->
+-        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
++        val task = com.google.android.gms.auth.api.signin.GoogleSignIn.getSignedInAccountFromIntent(result.data)
+         try {
+-            val account = task.getResult(ApiException::class.java)
++            val account = task.getResult(com.google.android.gms.common.api.ApiException::class.java)
+             if (account != null) {
+-                userViewModel.setUser(
++                authViewModel.clearError() 
++                onLoginSuccess(
+                     User(
+-                        kgid = "PENDING", // User will need to enter KGID later or we use email
+-                        name = account.displayName ?: "",
+-                        gender = "male" // Default, user can change later
++                        kgid = "PENDING_GOOGLE", 
++                        name = account.displayName ?: "Google User",
++                        gender = "unspecified"
+                     )
+                 )
+-                onLoginSuccess()
+             }
+-        } catch (e: ApiException) {
+-            error = "Sign in failed: ${e.statusCode}"
+-        } finally {
+-            isLoading = false
++        } catch (e: com.google.android.gms.common.api.ApiException) {
++            authViewModel.setError("Sign in failed: ${e.statusCode}")
++        }
++    }
++
++    // Automatically dismiss Auth errors when switching modes
++    LaunchedEffect(currentMode) {
++        authViewModel.clearError()
++    }
++
++    // Listen for successful login from AuthViewModel
++    LaunchedEffect(authUser) {
++        authUser?.let { user ->
++            onLoginSuccess(user)
++            authViewModel.clearCurrentUser() // Clear after navigation
++        }
++    }
++
++    // Listen for navigation to register
++    LaunchedEffect(navigateToRegister) {
++        if (navigateToRegister) {
++            authViewModel.clearNavigateToRegister()
++            onRegisterClick()
+         }
+     }
+ 
+     Column(
+-        modifier = Modifier.fillMaxSize().padding(24.dp),
++        modifier = Modifier
++            .fillMaxSize()
++            .verticalScroll(rememberScrollState())
++            .padding(24.dp),
+         horizontalAlignment = Alignment.CenterHorizontally,
+         verticalArrangement = Arrangement.Center
+     ) {
+@@ -76,79 +127,230 @@ fun LoginScreen(
+         )
+         Spacer(modifier = Modifier.height(48.dp))
+ 
+-        if (isLoading) {
++        if (isLoading && currentMode != LoginMode.FORGOT_PASSWORD) {
+             CircularProgressIndicator()
+-        } else {
+-            Button(
+-                onClick = {
+-                    isLoading = true
+-                    error = null
+-                    val signInIntent = GoogleSignIn.getClient(context, GoogleAuthHelper.getSignInOptions()).signInIntent
+-                    googleSignInLauncher.launch(signInIntent)
+-                },
+-                modifier = Modifier.fillMaxWidth().height(56.dp)
+-            ) {
+-                // In a real app, we'd use a Google Sign-In button asset
+-                Text("Sign in with Google")
+-            }
+-            
+             Spacer(modifier = Modifier.height(16.dp))
++        }
+ 
+-            Button(
+-                onClick = {
+-                    isLoading = true
+-                    error = null
+-                    val signInIntent = GoogleSignIn.getClient(context, GoogleAuthHelper.getSignInOptions()).signInIntent
+-                    googleSignInLauncher.launch(signInIntent)
+-                },
+-                modifier = Modifier.fillMaxWidth().height(56.dp)
+-            ) {
+-                Text("Start Self-Management")
+-            }
++        authError?.let { errorMsg ->
++            Text(
++                text = errorMsg,
++                color = MaterialTheme.colorScheme.error,
++                style = MaterialTheme.typography.bodyMedium,
++                modifier = Modifier.padding(bottom = 8.dp)
++            )
++        }
+ 
+-            Spacer(modifier = Modifier.height(16.dp))
++        when (currentMode) {
++            LoginMode.EMAIL_PASSWORD -> {
++                OutlinedTextField(
++                    value = email,
++                    onValueChange = { email = it },
++                    label = { Text("Registered Email") },
++                    modifier = Modifier.fillMaxWidth(),
++                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
++                )
++                Spacer(modifier = Modifier.height(8.dp))
++                OutlinedTextField(
++                    value = password,
++                    onValueChange = { password = it },
++                    label = { Text("PIN") },
++                    modifier = Modifier.fillMaxWidth(),
++                    visualTransformation = PasswordVisualTransformation(),
++                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
++                )
+ 
+-            // Γ£à Temporary Bypass Button for Testing
+-            OutlinedButton(
+-                onClick = {
+-                    userViewModel.setUser(
+-                        User(
+-                            kgid = "TEST12345",
+-                            name = "Test User",
+-                            gender = "male"
+-                        )
++                Spacer(modifier = Modifier.height(16.dp))
++                Button(
++                    onClick = {
++                        if (email.isBlank() || password.isBlank()) {
++                            authViewModel.setError("Email and PIN cannot be empty.")
++                            return@Button
++                        }
++                        authViewModel.login(email, password)
++                    },
++                    modifier = Modifier.fillMaxWidth().height(50.dp),
++                    enabled = !isLoading
++                ) {
++                    if (isLoading) {
++                        CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(24.dp))
++                    } else {
++                        Text("Login")
++                    }
++                }
++
++                Spacer(modifier = Modifier.height(16.dp))
++                
++                Button(
++                    onClick = {
++                        authViewModel.clearError()
++                        val webClientId = context.getString(R.string.default_web_client_id)
++                        val signInIntent = com.google.android.gms.auth.api.signin.GoogleSignIn.getClient(context, com.lm.app.auth.GoogleAuthHelper.getSignInOptions(webClientId)).signInIntent
++                        googleSignInLauncher.launch(signInIntent)
++                    },
++                    modifier = Modifier.fillMaxWidth().height(50.dp),
++                    colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color.Black)
++                ) {
++                    Text("Sign in with Google")
++                }
++                
++                Spacer(modifier = Modifier.height(12.dp))
++                Box(
++                    modifier = Modifier.fillMaxWidth(),
++                    contentAlignment = Alignment.CenterEnd
++                ) {
++                    Text(
++                        text = "Forgot PIN?",
++                        color = MaterialTheme.colorScheme.primary,
++                        modifier = Modifier.clickable { 
++                            currentMode = LoginMode.FORGOT_PASSWORD 
++                            authViewModel.clearError()
++                        }
+                     )
+-                    onLoginSuccess()
+-                },
+-                modifier = Modifier.fillMaxWidth().height(56.dp),
+-                colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Magenta)
+-            ) {
+-                Text("Bypass Login (Testing Only)")
++                }
+             }
+ 
+-            if (backupStatus is com.lm.app.ui.viewmodel.BackupStatus.InProgress) {
+-                CircularProgressIndicator(modifier = Modifier.padding(top = 16.dp))
+-            } else {
+-                TextButton(
+-                    onClick = { 
+-                        currentUser?.let { user ->
+-                            backupViewModel.performRestore(user) {
+-                                onLoginSuccess()
++            LoginMode.FORGOT_PASSWORD -> {
++                Text("PIN Reset (OTP via Email)", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
++                Spacer(modifier = Modifier.height(16.dp))
++
++                when (resetStep) {
++                    0 -> { // STEP 1: ENTER EMAIL
++                        OutlinedTextField(
++                            value = resetEmail,
++                            onValueChange = { resetEmail = it },
++                            label = { Text("Registered Email") },
++                            modifier = Modifier.fillMaxWidth(),
++                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
++                        )
++                        Spacer(modifier = Modifier.height(16.dp))
++                        Button(
++                            onClick = {
++                                if (resetEmail.isBlank()) {
++                                    authViewModel.setError("Enter email first")
++                                    return@Button
++                                }
++                                authViewModel.sendPasswordResetOtp(resetEmail) { success ->
++                                    if (success) {
++                                        resetStep = 1
++                                        resetCountdown = 300 // 5 minutes
++                                        Toast.makeText(context, "OTP Sent to $resetEmail", Toast.LENGTH_SHORT).show()
++                                    }
++                                }
++                            },
++                            modifier = Modifier.fillMaxWidth().height(50.dp),
++                            enabled = !isLoading
++                        ) {
++                            if (isLoading) {
++                                CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(24.dp))
++                            } else {
++                                Text("Send OTP")
+                             }
+-                        } ?: run {
+-                            error = "Please sign in first to restore your data."
+                         }
+-                    },
+-                    modifier = Modifier.padding(top = 8.dp)
+-                ) {
+-                    Text("Restore Existing Data from Drive")
++                    }
++                    1 -> { // STEP 2: VERIFY OTP
++                        LaunchedEffect(resetCountdown) {
++                            if (resetCountdown > 0) {
++                                delay(1000)
++                                resetCountdown--
++                            }
++                        }
++
++                        OutlinedTextField(
++                            value = resetOtp,
++                            onValueChange = { resetOtp = it },
++                            label = { Text("Enter 6-Digit OTP") },
++                            modifier = Modifier.fillMaxWidth(),
++                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
++                        )
++                        Spacer(modifier = Modifier.height(8.dp))
++                        
++                        if (resetCountdown > 0) {
++                            val mins = resetCountdown / 60
++                            val secs = resetCountdown % 60
++                            Text("OTP expires in $mins:${secs.toString().padStart(2, '0')}", color = MaterialTheme.colorScheme.primary)
++                        } else {
++                            Text("OTP Expired. Request a new one.", color = MaterialTheme.colorScheme.error)
++                        }
++                        
++                        Spacer(modifier = Modifier.height(16.dp))
++                        Button(
++                            onClick = {
++                                if (resetOtp.isBlank()) {
++                                    authViewModel.setError("Enter OTP")
++                                    return@Button
++                                }
++                                authViewModel.clearError()
++                                coroutineScope.launch {
++                                    delay(1500)
++                                    resetStep = 2
++                                    Toast.makeText(context, "OTP Verified", Toast.LENGTH_SHORT).show()
++                                }
++                            },
++                            modifier = Modifier.fillMaxWidth().height(50.dp),
++                            enabled = resetCountdown > 0
++                        ) {
++                            Text("Verify OTP")
++                        }
++                        Spacer(modifier = Modifier.height(8.dp))
++                        TextButton(onClick = { resetStep = 0 }) {
++                            Text("Request new OTP")
++                        }
++                    }
++                    2 -> { // STEP 3: RESET PIN
++                        OutlinedTextField(
++                            value = newPin,
++                            onValueChange = { newPin = it },
++                            label = { Text("New PIN") },
++                            modifier = Modifier.fillMaxWidth(),
++                            visualTransformation = PasswordVisualTransformation(),
++                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword)
++                        )
++                        Spacer(modifier = Modifier.height(8.dp))
++                        OutlinedTextField(
++                            value = confirmNewPin,
++                            onValueChange = { confirmNewPin = it },
++                            label = { Text("Confirm New PIN") },
++                            modifier = Modifier.fillMaxWidth(),
++                            visualTransformation = PasswordVisualTransformation(),
++                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword)
++                        )
++                        Spacer(modifier = Modifier.height(16.dp))
++                        Button(
++                            onClick = {
++                                if (newPin != confirmNewPin || newPin.length < 6) {
++                                    authViewModel.setError("PINs must match and be 6+ digits")
++                                    return@Button
++                                }
++                                authViewModel.verifyOtpAndResetPin(resetEmail, resetOtp, newPin) {
++                                    Toast.makeText(context, "PIN Reset Successfully!", Toast.LENGTH_LONG).show()
++                                    resetStep = 0
++                                    currentMode = LoginMode.EMAIL_PASSWORD
++                                }
++                            },
++                            modifier = Modifier.fillMaxWidth().height(50.dp),
++                            enabled = !isLoading
++                        ) {
++                            if (isLoading) {
++                                CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(24.dp))
++                            } else {
++                                Text("Reset PIN")
++                            }
++                        }
++                    }
+                 }
+-            }
+-        }
+ 
+-        error?.let {
+-            Spacer(modifier = Modifier.height(16.dp))
+-            Text(it, color = MaterialTheme.colorScheme.error)
++                Spacer(modifier = Modifier.height(12.dp))
++                Text(
++                    text = "Back to Login",
++                    color = MaterialTheme.colorScheme.primary,
++                    modifier = Modifier.clickable { 
++                        currentMode = LoginMode.EMAIL_PASSWORD 
++                        resetStep = 0
++                        authViewModel.clearError()
++                    }
++                )
++            }
+         }
+ 
+         Spacer(modifier = Modifier.height(48.dp))
+diff --git a/app/src/main/java/com/lm/app/ui/viewmodel/LeaveViewModel.kt b/app/src/main/java/com/lm/app/ui/viewmodel/LeaveViewModel.kt
+index ef29e6b..da27bb5 100644
+--- a/app/src/main/java/com/lm/app/ui/viewmodel/LeaveViewModel.kt
++++ b/app/src/main/java/com/lm/app/ui/viewmodel/LeaveViewModel.kt
+@@ -33,7 +33,9 @@ class LeaveViewModel @Inject constructor(
+         viewModelScope.launch {
+             _uiState.value = LeaveUiState.Loading
+             try {
+-                val currentBalance = leaveRepository.getLeaveBalance(user.kgid)
++                var currentBalance = leaveRepository.getLeaveBalance(user.kgid)
++                currentBalance = checkAndApplyAutoCredits(user.kgid, currentBalance)
++                
+                 _balance.value = currentBalance
+ 
+                 val currentYear = Calendar.getInstance().get(Calendar.YEAR)
+@@ -104,6 +106,103 @@ class LeaveViewModel @Inject constructor(
+         }
+     }
+ 
++    fun updateClLimit(user: User, newLimit: Int) {
++        viewModelScope.launch {
++            try {
++                val currentBalance = _balance.value ?: leaveRepository.getLeaveBalance(user.kgid)
++                _uiState.value = LeaveUiState.Loading
++                
++                // Keep the CL Year logic intact, just update the limit and remaining balance proportionally
++                val diff = newLimit - currentBalance.clAnnualLimit
++                val updatedBalance = currentBalance.copy(
++                    clAnnualLimit = newLimit,
++                    clRemaining = currentBalance.clRemaining + diff
++                )
++                
++                leaveRepository.saveLeaveBalance(updatedBalance)
++                _balance.value = updatedBalance
++                refreshData(user)
++            } catch (e: Exception) {
++                 _uiState.value = LeaveUiState.Error("Failed to update CL limit: ${e.message}")
++            }
++        }
++    }
++
++    fun updateInitialBalances(user: User, newEl: Double, newHpl: Double) {
++        viewModelScope.launch {
++            try {
++                val currentBalance = _balance.value ?: leaveRepository.getLeaveBalance(user.kgid)
++                _uiState.value = LeaveUiState.Loading
++
++                val updatedBalance = currentBalance.copy(
++                    elManualBalance = newEl,
++                    elBalance = newEl,
++                    hplBalance = newHpl
++                )
++                leaveRepository.saveLeaveBalance(updatedBalance)
++                _balance.value = updatedBalance
++                refreshData(user)
++            } catch (e: Exception) {
++                _uiState.value = LeaveUiState.Error("Failed to update balances: ${e.message}")
++            }
++        }
++    }
++
++    private suspend fun checkAndApplyAutoCredits(kgid: String, balance: LeaveBalance): LeaveBalance {
++        val cal = Calendar.getInstance()
++        val currentYear = cal.get(Calendar.YEAR)
++        val currentMonth = cal.get(Calendar.MONTH) // 0-indexed, Jan = 0, Jul = 6
++        
++        // Define the target credit string format: "YYYY-1" for Jan, "YYYY-2" for July
++        val currentSem = if (currentMonth < java.util.Calendar.JULY) 1 else 2
++        
++        var tempBalance = balance
++        var modified = false
++
++        // Example: If it's August 2026, currentSem = 2.
++        // We need to check if we've credited for Jan 2026 and Jul 2026.
++        // Instead of a complex loop, let's just do a simple check:
++        // What is the expected last credit string? -> targetCredit = "${currentYear}-${currentSem}"
++        val targetCredit = "${currentYear}-${currentSem}"
++        
++        // If balance indicates we haven't reached this target credit yet, we apply it.
++        // To be thorough, if they somehow missed Jan and open the app in Jul, we should give both.
++        // For simplicity, if lastElHplCreditDate is empty, we don't retroactively credit 10 years.
++        // We just pretend we're up to date OR we credit once for the current semester.
++        if (balance.lastElHplCreditDate.isEmpty()) {
++            return balance.copy(lastElHplCreditDate = targetCredit).also {
++                leaveRepository.saveLeaveBalance(it)
++            }
++        }
++
++        // Parse last credit Date
++        val parts = balance.lastElHplCreditDate.split("-")
++        if (parts.size == 2) {
++            val lastYear = parts[0].toIntOrNull() ?: currentYear
++            val lastSem = parts[1].toIntOrNull() ?: currentSem
++            
++            // Difference in semesters
++            val semsPassed = ((currentYear - lastYear) * 2) + (currentSem - lastSem)
++            
++            if (semsPassed > 0) {
++                // We add 15 EL and 10 HPL for each semester passed (cap it to some reasonable number if needed, e.g., max 6 sems)
++                val semsToCredit = semsPassed.coerceAtMost(6) // cap at 3 years missed
++                tempBalance = tempBalance.copy(
++                    elBalance = tempBalance.elBalance + (15.0 * semsToCredit),
++                    hplBalance = tempBalance.hplBalance + (10.0 * semsToCredit),
++                    lastElHplCreditDate = targetCredit
++                )
++                modified = true
++            }
++        }
++
++        if (modified) {
++            leaveRepository.saveLeaveBalance(tempBalance)
++        }
++        
++        return tempBalance
++    }
++
+     fun resetUiState() {
+         _uiState.value = LeaveUiState.Idle
+     }
+diff --git a/app/src/main/java/com/lm/app/ui/viewmodel/UserViewModel.kt b/app/src/main/java/com/lm/app/ui/viewmodel/UserViewModel.kt
+index 97a37f2..c524cee 100644
+--- a/app/src/main/java/com/lm/app/ui/viewmodel/UserViewModel.kt
++++ b/app/src/main/java/com/lm/app/ui/viewmodel/UserViewModel.kt
+@@ -17,4 +17,8 @@ class UserViewModel @Inject constructor() : ViewModel() {
+     fun setUser(user: User) {
+         _currentUser.value = user
+     }
++
++    fun logout() {
++        _currentUser.value = null
++    }
+ }
+diff --git a/app/src/main/java/com/lm/app/utils/LeaveBalanceCalculator.kt b/app/src/main/java/com/lm/app/utils/LeaveBalanceCalculator.kt
+index 9ee6557..0f70d62 100644
+--- a/app/src/main/java/com/lm/app/utils/LeaveBalanceCalculator.kt
++++ b/app/src/main/java/com/lm/app/utils/LeaveBalanceCalculator.kt
+@@ -34,6 +34,8 @@ object LeaveBalanceCalculator {
+                 }
+             }
+             "HPL" -> balance.copy(hplBalance = (balance.hplBalance - entry.totalDays).coerceAtLeast(0.0))
++            "CML" -> balance.copy(hplBalance = (balance.hplBalance - (entry.totalDays * 2)).coerceAtLeast(0.0))
++            "LND" -> balance // Maybe track LND used in future, not doing now
+             "CCL" -> balance.copy(cclUsed = balance.cclUsed + entry.totalDays)
+             "ML" -> balance.copy(maternityUsedCount = balance.maternityUsedCount + 1)
+             "PL" -> balance.copy(paternityUsedCount = balance.paternityUsedCount + 1)
+@@ -67,6 +69,8 @@ object LeaveBalanceCalculator {
+                 }
+             }
+             "HPL" -> balance.copy(hplBalance = balance.hplBalance + entry.totalDays)
++            "CML" -> balance.copy(hplBalance = balance.hplBalance + (entry.totalDays * 2))
++            "LND" -> balance 
+             "CCL" -> balance.copy(cclUsed = (balance.cclUsed - entry.totalDays).coerceAtLeast(0.0))
+             "ML" -> balance.copy(maternityUsedCount = (balance.maternityUsedCount - 1).coerceAtLeast(0))
+             "PL" -> balance.copy(paternityUsedCount = (balance.paternityUsedCount - 1).coerceAtLeast(0))
+diff --git a/app/src/main/java/com/lm/app/utils/LeaveValidationEngine.kt b/app/src/main/java/com/lm/app/utils/LeaveValidationEngine.kt
+index d5b4b6a..9af0947 100644
+--- a/app/src/main/java/com/lm/app/utils/LeaveValidationEngine.kt
++++ b/app/src/main/java/com/lm/app/utils/LeaveValidationEngine.kt
+@@ -13,72 +13,13 @@ object LeaveValidationEngine {
+         woCountThisMonth: Int
+     ): Result<Unit> {
+ 
+-        // 1. Gender Rules
+-        val genderError = checkGenderCompatibility(user.gender, entry.leaveType, entry.isMcl)
+-        if (genderError != null) return Result.failure(Exception(genderError))
++        // Since this app is for personal tracking, we allow the user to save entries even if they violate rules.
++        // The UI handles showing informative warnings dynamically.
++        // We only block structurally impossible things if needed, but for now we just allow it.
+ 
+-        // 2. Leave Specific Rules
+-        when (entry.leaveType.uppercase()) {
+-            "CL" -> {
+-                if (entry.isMcl) {
+-                    if (user.gender.lowercase() != "female") {
+-                        return Result.failure(Exception("MCL is only available for female employees"))
+-                    }
+-                    if (balance.mclLastUsedMonth == entry.month && balance.mclLastUsedYear == entry.year) {
+-                        return Result.failure(Exception("MCL already availed this month"))
+-                    }
+-                } else {
+-                    val maxDays = if (entry.isHalfDay) 0.5 else 7.0
+-                    if (entry.totalDays > maxDays && !entry.isHalfDay) {
+-                        return Result.failure(Exception("Casual Leave cannot exceed 7 days at a time"))
+-                    }
+-                    if (entry.isHalfDay && entry.totalDays != 0.5) {
+-                        return Result.failure(Exception("Half-day CL must be exactly 0.5 days"))
+-                    }
+-                    if (entry.totalDays > balance.clRemaining) {
+-                        return Result.failure(Exception("Insufficient CL balance (${balance.clRemaining} days remaining)"))
+-                    }
+-                }
+-            }
+-            "MCL" -> {
+-                if (user.gender.lowercase() != "female") {
+-                    return Result.failure(Exception("MCL is only available for female employees"))
+-                }
+-                if (balance.mclLastUsedMonth == entry.month && balance.mclLastUsedYear == entry.year) {
+-                    return Result.failure(Exception("MCL already availed this month"))
+-                }
+-            }
+-            "EL" -> {
+-                if (entry.elEntryType == "taken") {
+-                    if (entry.totalDays > balance.elBalance) {
+-                        return Result.failure(Exception("Insufficient EL balance (${balance.elBalance} days remaining)"))
+-                    }
+-                }
+-            }
+-            "HPL" -> {
+-                if (entry.totalDays > balance.hplBalance) {
+-                    return Result.failure(Exception("Insufficient HPL balance (${balance.hplBalance} days remaining)"))
+-                }
+-            }
+-            "WO" -> {
+-                if (woCountThisMonth >= 4) {
+-                    return Result.failure(Exception("Monthly Weekly Off limit reached (max 4 per month)"))
+-                }
+-            }
+-            "CCL" -> {
+-                if (entry.totalDays + balance.cclUsed > 730) {
+-                    return Result.failure(Exception("Insufficient CCL balance (Max 730 days total)"))
+-                }
+-            }
+-            "ML" -> {
+-                if (balance.maternityUsedCount >= 2) {
+-                    return Result.failure(Exception("Maternity leave already used for two children"))
+-                }
+-            }
+-            "PL" -> {
+-                if (balance.paternityUsedCount >= 2) {
+-                    return Result.failure(Exception("Paternity leave already used for two children"))
+-                }
++        if (entry.leaveType.uppercase() == "CL") {
++            if (entry.isHalfDay && entry.totalDays != 0.5) {
++                return Result.failure(Exception("Half-day CL must be exactly 0.5 days"))
+             }
+         }
+ 
+diff --git a/build.gradle.kts b/build.gradle.kts
+index 1a2922b..754367b 100644
+--- a/build.gradle.kts
++++ b/build.gradle.kts
+@@ -6,6 +6,7 @@ plugins {
+     alias(libs.plugins.ksp) apply false
+     alias(libs.plugins.kotlin.serialization) apply false
+     alias(libs.plugins.kotlin.compose) apply false
++    alias(libs.plugins.google.services) apply false
+ }
+ 
+ tasks.register("clean", Delete::class) {

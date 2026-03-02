@@ -34,6 +34,8 @@ object LeaveBalanceCalculator {
                 }
             }
             "HPL" -> balance.copy(hplBalance = (balance.hplBalance - entry.totalDays).coerceAtLeast(0.0))
+            "CML" -> balance.copy(hplBalance = (balance.hplBalance - (entry.totalDays * 2)).coerceAtLeast(0.0))
+            "LND" -> balance // Maybe track LND used in future, not doing now
             "CCL" -> balance.copy(cclUsed = balance.cclUsed + entry.totalDays)
             "ML" -> balance.copy(maternityUsedCount = balance.maternityUsedCount + 1)
             "PL" -> balance.copy(paternityUsedCount = balance.paternityUsedCount + 1)
@@ -67,6 +69,8 @@ object LeaveBalanceCalculator {
                 }
             }
             "HPL" -> balance.copy(hplBalance = balance.hplBalance + entry.totalDays)
+            "CML" -> balance.copy(hplBalance = balance.hplBalance + (entry.totalDays * 2))
+            "LND" -> balance 
             "CCL" -> balance.copy(cclUsed = (balance.cclUsed - entry.totalDays).coerceAtLeast(0.0))
             "ML" -> balance.copy(maternityUsedCount = (balance.maternityUsedCount - 1).coerceAtLeast(0))
             "PL" -> balance.copy(paternityUsedCount = (balance.paternityUsedCount - 1).coerceAtLeast(0))

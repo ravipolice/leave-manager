@@ -2,6 +2,7 @@ package com.lm.app;
 
 import com.lm.app.di.BackupModule;
 import com.lm.app.di.DataModule;
+import com.lm.app.ui.viewmodel.AuthViewModel_HiltModules;
 import com.lm.app.ui.viewmodel.BackupViewModel_HiltModules;
 import com.lm.app.ui.viewmodel.LeaveViewModel_HiltModules;
 import com.lm.app.ui.viewmodel.UserViewModel_HiltModules;
@@ -157,6 +158,7 @@ public final class MainApplication_HiltComponents {
 
   @Subcomponent(
       modules = {
+          AuthViewModel_HiltModules.KeyModule.class,
           BackupViewModel_HiltModules.KeyModule.class,
           HiltWrapper_ActivityRetainedComponentManager_LifecycleModule.class,
           HiltWrapper_SavedStateHandleModule.class,
@@ -199,6 +201,7 @@ public final class MainApplication_HiltComponents {
 
   @Subcomponent(
       modules = {
+          AuthViewModel_HiltModules.BindsModule.class,
           BackupViewModel_HiltModules.BindsModule.class,
           HiltWrapper_HiltViewModelFactory_ViewModelModule.class,
           LeaveViewModel_HiltModules.BindsModule.class,

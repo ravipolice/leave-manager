@@ -8,8 +8,9 @@ import com.google.android.gms.common.api.Scope
 import com.google.api.services.drive.DriveScopes
 
 object GoogleAuthHelper {
-    fun getSignInOptions(): GoogleSignInOptions {
+    fun getSignInOptions(webClientId: String): GoogleSignInOptions {
         return GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(webClientId)
             .requestEmail()
             .requestScopes(Scope(DriveScopes.DRIVE_FILE))
             .build()

@@ -64,27 +64,70 @@ fun LeaveHistoryScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(entries) { entry ->
-                    Card(modifier = Modifier.fillMaxWidth()) {
-                        Row(modifier = Modifier.padding(16.dp).fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(text = "${entry.leaveType}${if(entry.isMcl) " (MCL)" else ""}", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-                                val dateStr = if (entry.dateFrom == entry.dateTo) {
-                                    dateFormat.format(entry.dateFrom!!)
-                                } else {
-                                    "${dateFormat.format(entry.dateFrom!!)} - ${dateFormat.format(entry.dateTo!!)}"
-                                }
-                                Text(text = dateStr, fontSize = 14.sp)
-                                val durationStr = "%.1f".format(entry.totalDays)
-                                Text(text = "Duration: $durationStr days", fontSize = 12.sp, color = Color.Gray)
-                                entry.remark?.let {
-                                    Text(text = "Note: $it", fontSize = 12.sp, modifier = Modifier.padding(top = 4.dp))
+                    val baseColor = getLeaveColor(entry.leaveType, entry.isMcl)
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = baseColor.copy(alpha = 0.1f))
+                    ) {
+                        Column(modifier = Modifier.padding(12.dp)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "${entry.leaveType}${if(entry.isMcl) " (MCL)" else ""}",
+                                    fontWeight = FontWeight.Bold,
+                                    color = baseColor,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                Row {
+                                    IconButton(
+                                        onClick = { showEditDialog = entry },
+                                        modifier = Modifier.size(32.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Edit,
+                                            contentDescription = "Edit",
+                                            modifier = Modifier.size(18.dp),
+                                            tint = baseColor
+                                        )
+                                    }
+                                    IconButton(
+                                        onClick = { showDeleteDialog = entry },
+                                        modifier = Modifier.size(32.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Delete,
+                                            contentDescription = "Delete",
+                                            modifier = Modifier.size(18.dp),
+                                            tint = MaterialTheme.colorScheme.error
+                                        )
+                                    }
                                 }
                             }
-                            IconButton(onClick = { showEditDialog = entry }) {
-                                Icon(Icons.Default.Edit, contentDescription = "Edit", tint = MaterialTheme.colorScheme.primary)
+                            
+                            val dateStr = if (entry.dateFrom == entry.dateTo) {
+                                dateFormat.format(entry.dateFrom!!)
+                            } else {
+                                "${dateFormat.format(entry.dateFrom!!)} - ${dateFormat.format(entry.dateTo!!)}"
                             }
-                            IconButton(onClick = { showDeleteDialog = entry }) {
-                                Icon(Icons.Default.Delete, contentDescription = "Delete", tint = MaterialTheme.colorScheme.error)
+                            val durationValue = if (entry.totalDays % 1.0 == 0.0) entry.totalDays.toInt().toString() else "%.1f".format(entry.totalDays)
+                            val durationSuffix = "day${if (entry.totalDays != 1.0) "s" else ""}"
+                            
+                            Text(
+                                text = "$dateStr ($durationValue $durationSuffix)",
+                                fontSize = 14.sp,
+                                modifier = Modifier.padding(top = 2.dp)
+                            )
+                            
+                            entry.remark?.let {
+                                Text(
+                                    text = "Note: $it",
+                                    fontSize = 12.sp,
+                                    color = Color.Gray,
+                                    modifier = Modifier.padding(top = 4.dp)
+                                )
                             }
                         }
                     }
@@ -126,5 +169,17 @@ fun LeaveHistoryScreen(
                 showEditDialog = null
             }
         )
+    }
+}
+
+fun getLeaveColor(leaveType: String, isMcl: Boolean): Color {
+    return when {
+        isMcl -> Color(0xFFE91E63)
+        leaveType == "CL" -> Color(0xFF43A047)
+        leaveType == "EL" -> Color(0xFF1E88E5)
+        leaveType == "HPL" -> Color(0xFFFB8C00)
+        leaveType == "WO" -> Color(0xFF8E24AA)
+        leaveType == "CCL" -> Color(0xFF00ACC1)
+        else -> Color(0xFF546E7A)
     }
 }
