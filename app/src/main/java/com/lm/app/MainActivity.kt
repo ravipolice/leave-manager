@@ -104,7 +104,16 @@ fun AppNavigation() {
                     },
                     onRegisterClick = {
                         navController.navigate("register")
+                    },
+                    onForgotPinClick = {
+                        navController.navigate("forgot_pin")
                     }
+                )
+            }
+            composable("forgot_pin") {
+                ForgotPinScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    onPinResetSuccess = { navController.popBackStack() }
                 )
             }
             composable("register") {

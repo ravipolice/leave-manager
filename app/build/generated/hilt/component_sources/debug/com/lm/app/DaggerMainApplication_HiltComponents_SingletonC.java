@@ -407,25 +407,25 @@ public final class DaggerMainApplication_HiltComponents_SingletonC {
 
     @IdentifierNameString
     private static final class LazyClassKeyProvider {
-      static String com_lm_app_ui_viewmodel_BackupViewModel = "com.lm.app.ui.viewmodel.BackupViewModel";
-
       static String com_lm_app_ui_viewmodel_LeaveViewModel = "com.lm.app.ui.viewmodel.LeaveViewModel";
-
-      static String com_lm_app_ui_viewmodel_AuthViewModel = "com.lm.app.ui.viewmodel.AuthViewModel";
 
       static String com_lm_app_ui_viewmodel_UserViewModel = "com.lm.app.ui.viewmodel.UserViewModel";
 
-      @KeepFieldType
-      BackupViewModel com_lm_app_ui_viewmodel_BackupViewModel2;
+      static String com_lm_app_ui_viewmodel_BackupViewModel = "com.lm.app.ui.viewmodel.BackupViewModel";
+
+      static String com_lm_app_ui_viewmodel_AuthViewModel = "com.lm.app.ui.viewmodel.AuthViewModel";
 
       @KeepFieldType
       LeaveViewModel com_lm_app_ui_viewmodel_LeaveViewModel2;
 
       @KeepFieldType
-      AuthViewModel com_lm_app_ui_viewmodel_AuthViewModel2;
+      UserViewModel com_lm_app_ui_viewmodel_UserViewModel2;
 
       @KeepFieldType
-      UserViewModel com_lm_app_ui_viewmodel_UserViewModel2;
+      BackupViewModel com_lm_app_ui_viewmodel_BackupViewModel2;
+
+      @KeepFieldType
+      AuthViewModel com_lm_app_ui_viewmodel_AuthViewModel2;
     }
   }
 
@@ -475,19 +475,19 @@ public final class DaggerMainApplication_HiltComponents_SingletonC {
 
     @IdentifierNameString
     private static final class LazyClassKeyProvider {
-      static String com_lm_app_ui_viewmodel_BackupViewModel = "com.lm.app.ui.viewmodel.BackupViewModel";
-
       static String com_lm_app_ui_viewmodel_LeaveViewModel = "com.lm.app.ui.viewmodel.LeaveViewModel";
+
+      static String com_lm_app_ui_viewmodel_BackupViewModel = "com.lm.app.ui.viewmodel.BackupViewModel";
 
       static String com_lm_app_ui_viewmodel_UserViewModel = "com.lm.app.ui.viewmodel.UserViewModel";
 
       static String com_lm_app_ui_viewmodel_AuthViewModel = "com.lm.app.ui.viewmodel.AuthViewModel";
 
       @KeepFieldType
-      BackupViewModel com_lm_app_ui_viewmodel_BackupViewModel2;
+      LeaveViewModel com_lm_app_ui_viewmodel_LeaveViewModel2;
 
       @KeepFieldType
-      LeaveViewModel com_lm_app_ui_viewmodel_LeaveViewModel2;
+      BackupViewModel com_lm_app_ui_viewmodel_BackupViewModel2;
 
       @KeepFieldType
       UserViewModel com_lm_app_ui_viewmodel_UserViewModel2;
