@@ -1,10 +1,12 @@
 package com.lm.app.ui.viewmodel;
 
+import com.lm.app.backup.GoogleDriveService;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
 import dagger.internal.QualifierMetadata;
 import dagger.internal.ScopeMetadata;
 import javax.annotation.processing.Generated;
+import javax.inject.Provider;
 
 @ScopeMetadata
 @QualifierMetadata
@@ -21,20 +23,22 @@ import javax.annotation.processing.Generated;
     "cast"
 })
 public final class UserViewModel_Factory implements Factory<UserViewModel> {
+  private final Provider<GoogleDriveService> driveServiceProvider;
+
+  public UserViewModel_Factory(Provider<GoogleDriveService> driveServiceProvider) {
+    this.driveServiceProvider = driveServiceProvider;
+  }
+
   @Override
   public UserViewModel get() {
-    return newInstance();
+    return newInstance(driveServiceProvider.get());
   }
 
-  public static UserViewModel_Factory create() {
-    return InstanceHolder.INSTANCE;
+  public static UserViewModel_Factory create(Provider<GoogleDriveService> driveServiceProvider) {
+    return new UserViewModel_Factory(driveServiceProvider);
   }
 
-  public static UserViewModel newInstance() {
-    return new UserViewModel();
-  }
-
-  private static final class InstanceHolder {
-    private static final UserViewModel_Factory INSTANCE = new UserViewModel_Factory();
+  public static UserViewModel newInstance(GoogleDriveService driveService) {
+    return new UserViewModel(driveService);
   }
 }

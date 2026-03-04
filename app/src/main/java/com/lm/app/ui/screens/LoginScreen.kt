@@ -47,7 +47,7 @@ import com.lm.app.ui.viewmodel.AuthViewModel
 @Composable
 fun LoginScreen(
     onLoginSuccess: (User) -> Unit,
-    onRegisterClick: () -> Unit,
+    onRegisterClick: (String) -> Unit,
     onForgotPinClick: () -> Unit,
     authViewModel: AuthViewModel = hiltViewModel()
 ) {
@@ -91,10 +91,11 @@ fun LoginScreen(
     }
 
     // Listen for navigation to register
+    val pendingGoogleUser by authViewModel.pendingGoogleUser.collectAsState()
     LaunchedEffect(navigateToRegister) {
         if (navigateToRegister) {
             authViewModel.clearNavigateToRegister()
-            onRegisterClick()
+            onRegisterClick(pendingGoogleUser ?: "")
         }
     }
 
@@ -113,9 +114,21 @@ fun LoginScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                // Header equivalent to PMD
+                // App Logo
+                Image(
+                    painter = painterResource(id = R.drawable.app_logo),
+                    contentDescription = "Leave Manager Logo",
+                    modifier = Modifier
+                        .size(100.dp)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Fit
+                )
+
+                Spacer(Modifier.height(16.dp))
+
+                // Header
                 Text(
-                    text = "Police Leave Manager",
+                    text = "Leave Manager",
                     style = MaterialTheme.typography.headlineSmall.copy(
                         fontWeight = FontWeight.Bold,
                         fontSize = 28.sp

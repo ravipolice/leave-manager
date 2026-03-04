@@ -29,6 +29,10 @@ class LeaveViewModel @Inject constructor(
     private val _statistics = MutableStateFlow<LeaveStatistics?>(null)
     val statistics: StateFlow<LeaveStatistics?> = _statistics.asStateFlow()
 
+    // One-shot event: emits once after a successful leave save
+    private val _saveSuccess = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    val saveSuccess: SharedFlow<Unit> = _saveSuccess.asSharedFlow()
+
     fun refreshData(user: User) {
         viewModelScope.launch {
             _uiState.value = LeaveUiState.Loading
@@ -65,6 +69,7 @@ class LeaveViewModel @Inject constructor(
                     val updatedBalance = LeaveBalanceCalculator.applyLeave(currentBalance, entry)
                     leaveRepository.saveLeaveEntry(updatedBalance, entry)
                     _balance.value = updatedBalance
+                    _saveSuccess.emit(Unit) // One-shot event — fires exactly once
                     refreshData(user)
                 } else {
                     _uiState.value = LeaveUiState.Error(validation.exceptionOrNull()?.message ?: "Validation failed")

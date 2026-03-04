@@ -1748,6 +1748,7 @@
     <item name="action_menu_divider" type="id"/>
     <item name="action_menu_presenter" type="id"/>
     <item name="androidx_compose_ui_view_composition_context" type="id"/>
+    <item name="coil_request_manager" type="id"/>
     <item name="compose_view_saveable_id_tag" type="id"/>
     <item name="consume_window_insets_tag" type="id"/>
     <item name="fragment_container_view_tag" type="id"/>
@@ -1976,7 +1977,7 @@
     <string name="copy_toast_msg">Link copied to clipboard</string>
     <string name="default_error_message">"Invalid input"</string>
     <string name="default_popup_window_title" ns1:ignore="ExtraTranslation">"Pop-Up Window"</string>
-    <string name="default_web_client_id" translatable="false">603972083927-rog2v7ucndnu1399fugu3pemrjchov7t.apps.googleusercontent.com</string>
+    <string name="default_web_client_id" translatable="false">24036396436-s8fok805h9hjajvv5spvnethgntpaob1.apps.googleusercontent.com</string>
     <string name="dropdown_menu">"Dropdown menu"</string>
     <string description="Screen reader announcement for when a checkbox is on error. [CHAR LIMIT=NONE]" name="error_a11y_label">
     Error: invalid
@@ -1988,12 +1989,11 @@
     <string name="fallback_menu_item_copy_link">Copy link</string>
     <string name="fallback_menu_item_open_in_browser">Open in browser</string>
     <string name="fallback_menu_item_share_link">Share link</string>
-    <string name="firebase_database_url" translatable="false">https://pmd-police-mobile-directory-default-rtdb.asia-southeast1.firebasedatabase.app</string>
-    <string name="gcm_defaultSenderId" translatable="false">603972083927</string>
-    <string name="google_api_key" translatable="false">AIzaSyAZjrm7r4h7EdP4WwTzw9Rz42k_nKZRgj8</string>
-    <string name="google_app_id" translatable="false">1:603972083927:android:7dfb3190bc738510f29092</string>
-    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyAZjrm7r4h7EdP4WwTzw9Rz42k_nKZRgj8</string>
-    <string name="google_storage_bucket" translatable="false">pmd-police-mobile-directory.firebasestorage.app</string>
+    <string name="gcm_defaultSenderId" translatable="false">24036396436</string>
+    <string name="google_api_key" translatable="false">AIzaSyA_Mx-HGJ_I9X_EFfiy-DB50Mq-edY5rew</string>
+    <string name="google_app_id" translatable="false">1:24036396436:android:9970243b2a9a3b15511381</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyA_Mx-HGJ_I9X_EFfiy-DB50Mq-edY5rew</string>
+    <string name="google_storage_bucket" translatable="false">leave-manager-e457e.firebasestorage.app</string>
     <string name="hide_bottom_view_on_scroll_behavior" translatable="false">com.google.android.material.behavior.HideBottomViewOnScrollBehavior</string>
     <string description="Content description for an icon that appears in the title area of a dialog" name="icon_content_description">Dialog Icon</string>
     <string name="in_progress">In progress</string>
@@ -2173,7 +2173,7 @@
     <string name="path_password_eye_mask_strike_through" translatable="false">M2,4.27 L19.73,22 L22.27,19.46 L4.54,1.73 L4.54,1 L23,1 L23,23 L1,23 L1,4.27 Z</string>
     <string name="path_password_eye_mask_visible" translatable="false">M2,4.27 L2,4.27 L4.54,1.73 L4.54,1.73 L4.54,1 L23,1 L23,23 L1,23 L1,4.27 Z</string>
     <string name="path_password_strike_through" translatable="false">M3.27,4.27 L19.74,20.74</string>
-    <string name="project_id" translatable="false">pmd-police-mobile-directory</string>
+    <string name="project_id" translatable="false">leave-manager-e457e</string>
     <string name="range_end">"Range end"</string>
     <string name="range_start">"Range start"</string>
     <string name="search_menu_title">Search</string>

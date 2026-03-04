@@ -26,7 +26,7 @@ fun EditProfileDialog(
     var dobString by remember { mutableStateOf("") } // Keeping as string for simplicity in UI
     var doaString by remember { mutableStateOf("") }
 
-    val departments = listOf("Police", "Health", "Education", "Revenue", "Other")
+    val departments = listOf("Health", "Education", "Revenue", "Other")
     var expandedDepartment by remember { mutableStateOf(false) }
 
     AlertDialog(

@@ -1,8 +1,11 @@
 package com.lm.app.ui.components
 
+import android.graphics.Bitmap
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -10,8 +13,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.Backup
 import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.EventNote
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
@@ -23,7 +26,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
@@ -31,8 +36,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.lm.app.R // Replace with appropriate R
+import coil.compose.AsyncImage
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.lm.app.R
 import com.lm.app.ui.viewmodel.UserViewModel
+import com.lm.app.backup.BackupService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -42,12 +50,25 @@ fun NavigationDrawer(
     drawerState: DrawerState,
     scope: CoroutineScope,
     userViewModel: UserViewModel,
+    backupService: BackupService?,
     currentRoute: String?,
     onLogout: () -> Unit
 ) {
     val context = LocalContext.current
     val currentUser by userViewModel.currentUser.collectAsState()
+    val profilePhotoBitmap by userViewModel.profilePhotoBitmap.collectAsState()
     var showEditProfileDialog by remember { mutableStateOf(false) }
+
+    // Photo picker launcher
+    val photoPicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            val inputStream = context.contentResolver.openInputStream(it)
+            val bitmap = android.graphics.BitmapFactory.decodeStream(inputStream)
+            if (bitmap != null) userViewModel.uploadProfilePhoto(bitmap, context)
+        }
+    }
 
     if (showEditProfileDialog) {
         EditProfileDialog(
@@ -91,23 +112,32 @@ fun NavigationDrawer(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     
-                    // Box placeholder for profile image for now since we may not have coil/photo urls yet
+                    // Profile photo: from Google Drive or fallback icon
                     Box(
                         modifier = Modifier
                             .size(90.dp)
                             .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.secondaryContainer),
+                            .background(MaterialTheme.colorScheme.secondaryContainer)
+                            .clickable { photoPicker.launch("image/*") },
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = "Profile Icon",
-                            modifier = Modifier.size(50.dp),
-                            tint = MaterialTheme.colorScheme.onSecondaryContainer
-                        )
-                        
-                        // Blood group placeholder (hardcoded or removed if not in user model)
-                        // If it's not in LeaveManager's User model, we won't show it here right now.
+                        if (profilePhotoBitmap != null) {
+                            Image(
+                                bitmap = profilePhotoBitmap!!.asImageBitmap(),
+                                contentDescription = "Profile Photo",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .size(90.dp)
+                                    .clip(CircleShape)
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Default.Person,
+                                contentDescription = "Tap to add photo",
+                                modifier = Modifier.size(50.dp),
+                                tint = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(10.dp))
@@ -155,22 +185,6 @@ fun NavigationDrawer(
             ) {
                 // Adjust Routes as they exist in LeaveManagerApp
                 DrawerItem(
-                    icon = Icons.Default.EventNote,
-                    text = "Leave Dashboard",
-                    selected = currentRoute == "dashboard",
-                    onClick = {
-                        scope.launch {
-                            drawerState.close()
-                            navController.navigate("dashboard") {
-                                launchSingleTop = true
-                                restoreState = true
-                                popUpTo("dashboard") { inclusive = false }
-                            }
-                        }
-                    }
-                )
-
-                DrawerItem(
                     icon = Icons.Default.Info,
                     text = "Leave Rules",
                     selected = currentRoute == "rules",
@@ -180,6 +194,28 @@ fun NavigationDrawer(
                             navController.navigate("rules") {
                                 launchSingleTop = true
                                 restoreState = true
+                            }
+                        }
+                    }
+                )
+
+                DrawerItem(
+                    icon = Icons.Default.Backup,
+                    text = "Backup to Google Drive",
+                    onClick = {
+                        scope.launch { 
+                            drawerState.close() 
+                            Toast.makeText(context, "Backing up to Google Drive...", Toast.LENGTH_SHORT).show()
+                            currentUser?.let { user ->
+                                val result = backupService?.performBackup(context, user)
+                                if (result?.isSuccess == true) {
+                                    Toast.makeText(context, "✅ Backup saved to LeaveManager folder!", Toast.LENGTH_LONG).show()
+                                } else {
+                                    val errorMsg = result?.exceptionOrNull()?.message ?: "Unknown error"
+                                    Toast.makeText(context, "Backup failed: $errorMsg", Toast.LENGTH_LONG).show()
+                                }
+                            } ?: run {
+                                Toast.makeText(context, "Must be logged in to backup", Toast.LENGTH_SHORT).show()
                             }
                         }
                     }

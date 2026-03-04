@@ -178,14 +178,6 @@ fun LeaveDashboardScreen(
                                 showMenu = false
                             }
                         )
-                        DropdownMenuItem(
-                            text = { Text("Leave Rules") },
-                            leadingIcon = { Icon(Icons.Default.Info, contentDescription = null) },
-                            onClick = {
-                                onNavigateToRules()
-                                showMenu = false
-                            }
-                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -242,7 +234,7 @@ fun LeaveDashboardScreen(
                             Box(modifier = Modifier.weight(1f)) {
                                 LeaveTile(
                                     title = "Earned Leave",
-                                    balance = balance?.elBalance?.let { "%.1f".format(it) } ?: "-",
+                                    balance = balance?.elBalance?.let { "%.0f".format(it) } ?: "-",
                                     subtitle = "days remaining",
                                     icon = Icons.Default.Star,
                                     gradient = listOf(Color(0xFF1E88E5), Color(0xFF0D47A1)),
@@ -257,7 +249,7 @@ fun LeaveDashboardScreen(
                             Box(modifier = Modifier.weight(1f)) {
                                 LeaveTile(
                                     title = "Half Pay Leave",
-                                    balance = balance?.hplBalance?.let { "%.1f".format(it) } ?: "-",
+                                    balance = balance?.hplBalance?.let { "%.0f".format(it) } ?: "-",
                                     subtitle = "days remaining",
                                     icon = Icons.Default.Schedule,
                                     gradient = listOf(Color(0xFFFB8C00), Color(0xFFE65100)),
@@ -283,7 +275,7 @@ fun LeaveDashboardScreen(
                             Box(modifier = Modifier.weight(1f)) {
                                 LeaveTile(
                                     title = "Child Care Leave",
-                                    balance = balance?.cclUsed?.let { "%.1f".format(it) } ?: "0.0",
+                                    balance = balance?.cclUsed?.let { "%.0f".format(it) } ?: "0",
                                     subtitle = "days used",
                                     icon = Icons.Default.ChildCare,
                                     gradient = listOf(Color(0xFF00ACC1), Color(0xFF006064)),
@@ -309,7 +301,7 @@ fun LeaveDashboardScreen(
                                             (statistics?.leaveTypeBreakdown?.get("LWA") ?: 0.0)
                                     LeaveTile(
                                         title = "Others / LWA",
-                                        balance = "%.1f".format(othersTaken),
+                                        balance = "%.0f".format(othersTaken),
                                         subtitle = "days this year",
                                         icon = Icons.Default.MoreHoriz,
                                         gradient = listOf(Color(0xFF546E7A), Color(0xFF263238)),
@@ -325,7 +317,7 @@ fun LeaveDashboardScreen(
                                     (statistics?.leaveTypeBreakdown?.get("LWA") ?: 0.0)
                              LeaveTile(
                                 title = "Others / LWA",
-                                balance = "%.1f".format(othersTaken),
+                                balance = "%.0f".format(othersTaken),
                                 subtitle = "days this year",
                                 icon = Icons.Default.MoreHoriz,
                                 gradient = listOf(Color(0xFF546E7A), Color(0xFF263238)),

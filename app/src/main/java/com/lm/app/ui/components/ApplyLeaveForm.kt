@@ -76,20 +76,11 @@ fun ApplyLeaveForm(
         val from = dateFrom ?: return 0.0
         val to = dateTo ?: return 0.0
         val diff = to.time - from.time
-        val calendarDays = (diff / (1000 * 60 * 60 * 24)).toDouble() + 1
-        return if (leaveType == "HPL") calendarDays / 2.0 else calendarDays
+        return (diff / (1000 * 60 * 60 * 24)).toDouble() + 1
     }
 
     val days = calculateDays()
 
-    LaunchedEffect(uiState) {
-        if (uiState is LeaveUiState.Success) {
-            leaveViewModel.resetUiState()
-            dateFrom = null
-            dateTo = null
-            remark = ""
-        }
-    }
 
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),

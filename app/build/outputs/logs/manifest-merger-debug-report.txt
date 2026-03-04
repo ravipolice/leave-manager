@@ -6,6 +6,10 @@ INJECTED from C:\Users\ravip\AndroidStudioProjects\LeaveManagerApp\app\src\main\
 INJECTED from C:\Users\ravip\AndroidStudioProjects\LeaveManagerApp\app\src\main\AndroidManifest.xml:2:1-28:12
 MERGED from [com.google.android.material:material:1.12.0] C:\Users\ravip\.gradle\caches\8.13\transforms\e61d420851805e4542dbe542135ab50e\transformed\material-1.12.0\AndroidManifest.xml:17:1-24:12
 MERGED from [androidx.constraintlayout:constraintlayout:2.0.1] C:\Users\ravip\.gradle\caches\8.13\transforms\e985fe97796dbb27726c19a1594ebdb9\transformed\constraintlayout-2.0.1\AndroidManifest.xml:2:1-11:12
+MERGED from [io.coil-kt:coil-compose:2.6.0] C:\Users\ravip\.gradle\caches\8.13\transforms\9a6123943279c53de34466f5527cc2d7\transformed\coil-compose-2.6.0\AndroidManifest.xml:2:1-7:12
+MERGED from [io.coil-kt:coil-compose-base:2.6.0] C:\Users\ravip\.gradle\caches\8.13\transforms\2d282229e627197a21d18fd0baecebb9\transformed\coil-compose-base-2.6.0\AndroidManifest.xml:2:1-7:12
+MERGED from [io.coil-kt:coil:2.6.0] C:\Users\ravip\.gradle\caches\8.13\transforms\c9d1c62a0544614835f8643b3bf2ffc5\transformed\coil-2.6.0\AndroidManifest.xml:2:1-7:12
+MERGED from [io.coil-kt:coil-base:2.6.0] C:\Users\ravip\.gradle\caches\8.13\transforms\060c438accf0be6808ac2a5b0518928a\transformed\coil-base-2.6.0\AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.appcompat:appcompat-resources:1.6.1] C:\Users\ravip\.gradle\caches\8.13\transforms\6448ba4e6eee54355faffc4e8f556081\transformed\appcompat-resources-1.6.1\AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.appcompat:appcompat:1.6.1] C:\Users\ravip\.gradle\caches\8.13\transforms\fa87121efca0f281d5b81cea4eb0f944\transformed\appcompat-1.6.1\AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.coordinatorlayout:coordinatorlayout:1.1.0] C:\Users\ravip\.gradle\caches\8.13\transforms\e0e6ac0c7f921296783e679dd6c3b3d8\transformed\coordinatorlayout-1.1.0\AndroidManifest.xml:17:1-24:12
@@ -38,6 +42,7 @@ MERGED from [androidx.compose.ui:ui-text-android:1.7.0] C:\Users\ravip\.gradle\c
 MERGED from [androidx.compose.ui:ui-tooling-android:1.7.0] C:\Users\ravip\.gradle\caches\8.13\transforms\db0a5b70b54b03fbb21ce5cb465dee48\transformed\ui-tooling-release\AndroidManifest.xml:17:1-28:12
 MERGED from [androidx.compose.ui:ui-graphics-android:1.7.0] C:\Users\ravip\.gradle\caches\8.13\transforms\d1fd5f8d1ed0f8afea624a115c896479\transformed\ui-graphics-release\AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.compose.ui:ui-test-manifest:1.7.0] C:\Users\ravip\.gradle\caches\8.13\transforms\7205fa922d5af59c4c10149c40116c8f\transformed\ui-test-manifest-1.7.0\AndroidManifest.xml:17:1-28:12
+MERGED from [com.google.accompanist:accompanist-drawablepainter:0.32.0] C:\Users\ravip\.gradle\caches\8.13\transforms\e953be25f6f5c2b0c255eefc322466b4\transformed\accompanist-drawablepainter-0.32.0\AndroidManifest.xml:17:1-23:12
 MERGED from [com.google.dagger:hilt-android:2.51.1] C:\Users\ravip\.gradle\caches\8.13\transforms\5969aa7f7df82f4a46b93ea595d5375c\transformed\hilt-android-2.51.1\AndroidManifest.xml:16:1-19:12
 MERGED from [com.google.firebase:firebase-auth-ktx:23.1.0] C:\Users\ravip\.gradle\caches\8.13\transforms\acc5e859a9b69cf6abfdc63ed2768a04\transformed\firebase-auth-ktx-23.1.0\AndroidManifest.xml:2:1-17:12
 MERGED from [com.google.firebase:firebase-auth:23.1.0] C:\Users\ravip\.gradle\caches\8.13\transforms\afc3e7ef07d56a6462eea24e45afe889\transformed\firebase-auth-23.1.0\AndroidManifest.xml:17:1-75:12
@@ -105,8 +110,8 @@ MERGED from [androidx.customview:customview-poolingcontainer:1.0.0] C:\Users\rav
 MERGED from [androidx.core:core-ktx:1.13.1] C:\Users\ravip\.gradle\caches\8.13\transforms\f627e697386e069ed101e4b3931cb15c\transformed\core-ktx-1.13.1\AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.sqlite:sqlite-framework:2.4.0] C:\Users\ravip\.gradle\caches\8.13\transforms\76f607c6edaf8c916dffb5a43f396d92\transformed\sqlite-framework-2.4.0\AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.sqlite:sqlite:2.4.0] C:\Users\ravip\.gradle\caches\8.13\transforms\aa56909819cfa725a1d9853e6520de77\transformed\sqlite-2.4.0\AndroidManifest.xml:17:1-22:12
-MERGED from [com.google.android.libraries.identity.googleid:googleid:1.1.0] C:\Users\ravip\.gradle\caches\8.13\transforms\ac02600710f5f71563487ef974732f25\transformed\googleid-1.1.0\AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.annotation:annotation-experimental:1.4.1] C:\Users\ravip\.gradle\caches\8.13\transforms\0cca58628d0bdb1bb781f88fff0d3571\transformed\annotation-experimental-1.4.1\AndroidManifest.xml:2:1-7:12
+MERGED from [com.google.android.libraries.identity.googleid:googleid:1.1.0] C:\Users\ravip\.gradle\caches\8.13\transforms\ac02600710f5f71563487ef974732f25\transformed\googleid-1.1.0\AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\ravip\.gradle\caches\8.13\transforms\c3f82c47f6b3e578cca263fc9d15ea8a\transformed\versionedparcelable-1.1.1\AndroidManifest.xml:17:1-27:12
 MERGED from [androidx.cardview:cardview:1.0.0] C:\Users\ravip\.gradle\caches\8.13\transforms\44baa90a1fe5a652d32c89f027733a59\transformed\cardview-1.0.0\AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.arch.core:core-runtime:2.2.0] C:\Users\ravip\.gradle\caches\8.13\transforms\b946836df7fb61469687b2b75b7e697f\transformed\core-runtime-2.2.0\AndroidManifest.xml:17:1-22:12
@@ -119,6 +124,7 @@ MERGED from [com.google.firebase:firebase-components:18.0.0] C:\Users\ravip\.gra
 MERGED from [androidx.documentfile:documentfile:1.0.0] C:\Users\ravip\.gradle\caches\8.13\transforms\919a7400402136e3fcc806c3af1ed32a\transformed\documentfile-1.0.0\AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.localbroadcastmanager:localbroadcastmanager:1.0.0] C:\Users\ravip\.gradle\caches\8.13\transforms\d544de8f8af5f58dc5738080de466e71\transformed\localbroadcastmanager-1.0.0\AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.print:print:1.0.0] C:\Users\ravip\.gradle\caches\8.13\transforms\2186ff112c91f700abb519c59bc992f1\transformed\print-1.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [androidx.exifinterface:exifinterface:1.3.7] C:\Users\ravip\.gradle\caches\8.13\transforms\7a24e732cc4bf8a235c0b67ffee19f0a\transformed\exifinterface-1.3.7\AndroidManifest.xml:17:1-24:12
 MERGED from [io.grpc:grpc-android:1.62.2] C:\Users\ravip\.gradle\caches\8.13\transforms\f74d6aada65a7dc5bd6a8060d7c11296\transformed\grpc-android-1.62.2\AndroidManifest.xml:2:1-9:12
 MERGED from [com.google.dagger:dagger-lint-aar:2.51.1] C:\Users\ravip\.gradle\caches\8.13\transforms\035465b04759f3ef4627f26aa025f4ab\transformed\dagger-lint-aar-2.51.1\AndroidManifest.xml:16:1-19:12
 MERGED from [com.google.firebase:protolite-well-known-types:18.0.0] C:\Users\ravip\.gradle\caches\8.13\transforms\f87517366f43c31ce6b77fc34a79e581\transformed\protolite-well-known-types-18.0.0\AndroidManifest.xml:2:1-11:12
@@ -280,6 +286,14 @@ MERGED from [com.google.android.material:material:1.12.0] C:\Users\ravip\.gradle
 MERGED from [com.google.android.material:material:1.12.0] C:\Users\ravip\.gradle\caches\8.13\transforms\e61d420851805e4542dbe542135ab50e\transformed\material-1.12.0\AndroidManifest.xml:20:5-44
 MERGED from [androidx.constraintlayout:constraintlayout:2.0.1] C:\Users\ravip\.gradle\caches\8.13\transforms\e985fe97796dbb27726c19a1594ebdb9\transformed\constraintlayout-2.0.1\AndroidManifest.xml:5:5-7:41
 MERGED from [androidx.constraintlayout:constraintlayout:2.0.1] C:\Users\ravip\.gradle\caches\8.13\transforms\e985fe97796dbb27726c19a1594ebdb9\transformed\constraintlayout-2.0.1\AndroidManifest.xml:5:5-7:41
+MERGED from [io.coil-kt:coil-compose:2.6.0] C:\Users\ravip\.gradle\caches\8.13\transforms\9a6123943279c53de34466f5527cc2d7\transformed\coil-compose-2.6.0\AndroidManifest.xml:5:5-44
+MERGED from [io.coil-kt:coil-compose:2.6.0] C:\Users\ravip\.gradle\caches\8.13\transforms\9a6123943279c53de34466f5527cc2d7\transformed\coil-compose-2.6.0\AndroidManifest.xml:5:5-44
+MERGED from [io.coil-kt:coil-compose-base:2.6.0] C:\Users\ravip\.gradle\caches\8.13\transforms\2d282229e627197a21d18fd0baecebb9\transformed\coil-compose-base-2.6.0\AndroidManifest.xml:5:5-44
+MERGED from [io.coil-kt:coil-compose-base:2.6.0] C:\Users\ravip\.gradle\caches\8.13\transforms\2d282229e627197a21d18fd0baecebb9\transformed\coil-compose-base-2.6.0\AndroidManifest.xml:5:5-44
+MERGED from [io.coil-kt:coil:2.6.0] C:\Users\ravip\.gradle\caches\8.13\transforms\c9d1c62a0544614835f8643b3bf2ffc5\transformed\coil-2.6.0\AndroidManifest.xml:5:5-44
+MERGED from [io.coil-kt:coil:2.6.0] C:\Users\ravip\.gradle\caches\8.13\transforms\c9d1c62a0544614835f8643b3bf2ffc5\transformed\coil-2.6.0\AndroidManifest.xml:5:5-44
+MERGED from [io.coil-kt:coil-base:2.6.0] C:\Users\ravip\.gradle\caches\8.13\transforms\060c438accf0be6808ac2a5b0518928a\transformed\coil-base-2.6.0\AndroidManifest.xml:5:5-44
+MERGED from [io.coil-kt:coil-base:2.6.0] C:\Users\ravip\.gradle\caches\8.13\transforms\060c438accf0be6808ac2a5b0518928a\transformed\coil-base-2.6.0\AndroidManifest.xml:5:5-44
 MERGED from [androidx.appcompat:appcompat-resources:1.6.1] C:\Users\ravip\.gradle\caches\8.13\transforms\6448ba4e6eee54355faffc4e8f556081\transformed\appcompat-resources-1.6.1\AndroidManifest.xml:20:5-44
 MERGED from [androidx.appcompat:appcompat-resources:1.6.1] C:\Users\ravip\.gradle\caches\8.13\transforms\6448ba4e6eee54355faffc4e8f556081\transformed\appcompat-resources-1.6.1\AndroidManifest.xml:20:5-44
 MERGED from [androidx.appcompat:appcompat:1.6.1] C:\Users\ravip\.gradle\caches\8.13\transforms\fa87121efca0f281d5b81cea4eb0f944\transformed\appcompat-1.6.1\AndroidManifest.xml:20:5-44
@@ -344,6 +358,8 @@ MERGED from [androidx.compose.ui:ui-graphics-android:1.7.0] C:\Users\ravip\.grad
 MERGED from [androidx.compose.ui:ui-graphics-android:1.7.0] C:\Users\ravip\.gradle\caches\8.13\transforms\d1fd5f8d1ed0f8afea624a115c896479\transformed\ui-graphics-release\AndroidManifest.xml:5:5-44
 MERGED from [androidx.compose.ui:ui-test-manifest:1.7.0] C:\Users\ravip\.gradle\caches\8.13\transforms\7205fa922d5af59c4c10149c40116c8f\transformed\ui-test-manifest-1.7.0\AndroidManifest.xml:20:5-44
 MERGED from [androidx.compose.ui:ui-test-manifest:1.7.0] C:\Users\ravip\.gradle\caches\8.13\transforms\7205fa922d5af59c4c10149c40116c8f\transformed\ui-test-manifest-1.7.0\AndroidManifest.xml:20:5-44
+MERGED from [com.google.accompanist:accompanist-drawablepainter:0.32.0] C:\Users\ravip\.gradle\caches\8.13\transforms\e953be25f6f5c2b0c255eefc322466b4\transformed\accompanist-drawablepainter-0.32.0\AndroidManifest.xml:21:5-44
+MERGED from [com.google.accompanist:accompanist-drawablepainter:0.32.0] C:\Users\ravip\.gradle\caches\8.13\transforms\e953be25f6f5c2b0c255eefc322466b4\transformed\accompanist-drawablepainter-0.32.0\AndroidManifest.xml:21:5-44
 MERGED from [com.google.dagger:hilt-android:2.51.1] C:\Users\ravip\.gradle\caches\8.13\transforms\5969aa7f7df82f4a46b93ea595d5375c\transformed\hilt-android-2.51.1\AndroidManifest.xml:18:3-42
 MERGED from [com.google.dagger:hilt-android:2.51.1] C:\Users\ravip\.gradle\caches\8.13\transforms\5969aa7f7df82f4a46b93ea595d5375c\transformed\hilt-android-2.51.1\AndroidManifest.xml:18:3-42
 MERGED from [com.google.firebase:firebase-auth-ktx:23.1.0] C:\Users\ravip\.gradle\caches\8.13\transforms\acc5e859a9b69cf6abfdc63ed2768a04\transformed\firebase-auth-ktx-23.1.0\AndroidManifest.xml:5:5-44
@@ -478,10 +494,10 @@ MERGED from [androidx.sqlite:sqlite-framework:2.4.0] C:\Users\ravip\.gradle\cach
 MERGED from [androidx.sqlite:sqlite-framework:2.4.0] C:\Users\ravip\.gradle\caches\8.13\transforms\76f607c6edaf8c916dffb5a43f396d92\transformed\sqlite-framework-2.4.0\AndroidManifest.xml:20:5-44
 MERGED from [androidx.sqlite:sqlite:2.4.0] C:\Users\ravip\.gradle\caches\8.13\transforms\aa56909819cfa725a1d9853e6520de77\transformed\sqlite-2.4.0\AndroidManifest.xml:20:5-44
 MERGED from [androidx.sqlite:sqlite:2.4.0] C:\Users\ravip\.gradle\caches\8.13\transforms\aa56909819cfa725a1d9853e6520de77\transformed\sqlite-2.4.0\AndroidManifest.xml:20:5-44
-MERGED from [com.google.android.libraries.identity.googleid:googleid:1.1.0] C:\Users\ravip\.gradle\caches\8.13\transforms\ac02600710f5f71563487ef974732f25\transformed\googleid-1.1.0\AndroidManifest.xml:5:5-44
-MERGED from [com.google.android.libraries.identity.googleid:googleid:1.1.0] C:\Users\ravip\.gradle\caches\8.13\transforms\ac02600710f5f71563487ef974732f25\transformed\googleid-1.1.0\AndroidManifest.xml:5:5-44
 MERGED from [androidx.annotation:annotation-experimental:1.4.1] C:\Users\ravip\.gradle\caches\8.13\transforms\0cca58628d0bdb1bb781f88fff0d3571\transformed\annotation-experimental-1.4.1\AndroidManifest.xml:5:5-44
 MERGED from [androidx.annotation:annotation-experimental:1.4.1] C:\Users\ravip\.gradle\caches\8.13\transforms\0cca58628d0bdb1bb781f88fff0d3571\transformed\annotation-experimental-1.4.1\AndroidManifest.xml:5:5-44
+MERGED from [com.google.android.libraries.identity.googleid:googleid:1.1.0] C:\Users\ravip\.gradle\caches\8.13\transforms\ac02600710f5f71563487ef974732f25\transformed\googleid-1.1.0\AndroidManifest.xml:5:5-44
+MERGED from [com.google.android.libraries.identity.googleid:googleid:1.1.0] C:\Users\ravip\.gradle\caches\8.13\transforms\ac02600710f5f71563487ef974732f25\transformed\googleid-1.1.0\AndroidManifest.xml:5:5-44
 MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\ravip\.gradle\caches\8.13\transforms\c3f82c47f6b3e578cca263fc9d15ea8a\transformed\versionedparcelable-1.1.1\AndroidManifest.xml:20:5-22:41
 MERGED from [androidx.versionedparcelable:versionedparcelable:1.1.1] C:\Users\ravip\.gradle\caches\8.13\transforms\c3f82c47f6b3e578cca263fc9d15ea8a\transformed\versionedparcelable-1.1.1\AndroidManifest.xml:20:5-22:41
 MERGED from [androidx.cardview:cardview:1.0.0] C:\Users\ravip\.gradle\caches\8.13\transforms\44baa90a1fe5a652d32c89f027733a59\transformed\cardview-1.0.0\AndroidManifest.xml:20:5-44
@@ -506,6 +522,8 @@ MERGED from [androidx.localbroadcastmanager:localbroadcastmanager:1.0.0] C:\User
 MERGED from [androidx.localbroadcastmanager:localbroadcastmanager:1.0.0] C:\Users\ravip\.gradle\caches\8.13\transforms\d544de8f8af5f58dc5738080de466e71\transformed\localbroadcastmanager-1.0.0\AndroidManifest.xml:20:5-44
 MERGED from [androidx.print:print:1.0.0] C:\Users\ravip\.gradle\caches\8.13\transforms\2186ff112c91f700abb519c59bc992f1\transformed\print-1.0.0\AndroidManifest.xml:20:5-44
 MERGED from [androidx.print:print:1.0.0] C:\Users\ravip\.gradle\caches\8.13\transforms\2186ff112c91f700abb519c59bc992f1\transformed\print-1.0.0\AndroidManifest.xml:20:5-44
+MERGED from [androidx.exifinterface:exifinterface:1.3.7] C:\Users\ravip\.gradle\caches\8.13\transforms\7a24e732cc4bf8a235c0b67ffee19f0a\transformed\exifinterface-1.3.7\AndroidManifest.xml:20:5-22:41
+MERGED from [androidx.exifinterface:exifinterface:1.3.7] C:\Users\ravip\.gradle\caches\8.13\transforms\7a24e732cc4bf8a235c0b67ffee19f0a\transformed\exifinterface-1.3.7\AndroidManifest.xml:20:5-22:41
 MERGED from [io.grpc:grpc-android:1.62.2] C:\Users\ravip\.gradle\caches\8.13\transforms\f74d6aada65a7dc5bd6a8060d7c11296\transformed\grpc-android-1.62.2\AndroidManifest.xml:5:5-44
 MERGED from [io.grpc:grpc-android:1.62.2] C:\Users\ravip\.gradle\caches\8.13\transforms\f74d6aada65a7dc5bd6a8060d7c11296\transformed\grpc-android-1.62.2\AndroidManifest.xml:5:5-44
 MERGED from [com.google.dagger:dagger-lint-aar:2.51.1] C:\Users\ravip\.gradle\caches\8.13\transforms\035465b04759f3ef4627f26aa025f4ab\transformed\dagger-lint-aar-2.51.1\AndroidManifest.xml:18:3-42

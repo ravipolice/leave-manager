@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.lm.app-mergeDebugResources-78:/values-ms/values-ms.xml",
+            "outputFile": "com.lm.app-mergeDebugResources-79:/values-ms/values-ms.xml",
             "map": [
                 {
                     "source": "C:\\Users\\ravip\\.gradle\\caches\\8.13\\transforms\\0cebd6b8ba683818939452eed5908bab\\transformed\\foundation-release\\res\\values-ms\\values-ms.xml",

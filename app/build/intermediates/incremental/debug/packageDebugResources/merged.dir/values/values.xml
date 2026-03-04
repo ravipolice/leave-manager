@@ -13,14 +13,13 @@
     <color name="md_theme_light_primaryContainer">#EADDFF</color>
     <color name="md_theme_light_secondary">#625B71</color>
     <string name="app_name">Leave Manger</string>
-    <string name="default_web_client_id" translatable="false">603972083927-rog2v7ucndnu1399fugu3pemrjchov7t.apps.googleusercontent.com</string>
-    <string name="firebase_database_url" translatable="false">https://pmd-police-mobile-directory-default-rtdb.asia-southeast1.firebasedatabase.app</string>
-    <string name="gcm_defaultSenderId" translatable="false">603972083927</string>
-    <string name="google_api_key" translatable="false">AIzaSyAZjrm7r4h7EdP4WwTzw9Rz42k_nKZRgj8</string>
-    <string name="google_app_id" translatable="false">1:603972083927:android:7dfb3190bc738510f29092</string>
-    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyAZjrm7r4h7EdP4WwTzw9Rz42k_nKZRgj8</string>
-    <string name="google_storage_bucket" translatable="false">pmd-police-mobile-directory.firebasestorage.app</string>
-    <string name="project_id" translatable="false">pmd-police-mobile-directory</string>
+    <string name="default_web_client_id" translatable="false">24036396436-s8fok805h9hjajvv5spvnethgntpaob1.apps.googleusercontent.com</string>
+    <string name="gcm_defaultSenderId" translatable="false">24036396436</string>
+    <string name="google_api_key" translatable="false">AIzaSyA_Mx-HGJ_I9X_EFfiy-DB50Mq-edY5rew</string>
+    <string name="google_app_id" translatable="false">1:24036396436:android:9970243b2a9a3b15511381</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyA_Mx-HGJ_I9X_EFfiy-DB50Mq-edY5rew</string>
+    <string name="google_storage_bucket" translatable="false">leave-manager-e457e.firebasestorage.app</string>
+    <string name="project_id" translatable="false">leave-manager-e457e</string>
     <style name="Theme.PoliceLeaveManager" parent="Theme.Material3.Light.NoActionBar">
         <item name="colorPrimary">@color/md_theme_light_primary</item>
         <item name="colorOnPrimary">@color/md_theme_light_onPrimary</item>

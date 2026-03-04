@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.lm.app-mergeDebugResources-78:/values-fr-rCA/values-fr-rCA.xml",
+            "outputFile": "com.lm.app-mergeDebugResources-79:/values-fr-rCA/values-fr-rCA.xml",
             "map": [
                 {
                     "source": "C:\\Users\\ravip\\.gradle\\caches\\8.13\\transforms\\2afdf2bebfafe8dcb21118bef91137e4\\transformed\\material3-release\\res\\values-fr-rCA\\values-fr-rCA.xml",

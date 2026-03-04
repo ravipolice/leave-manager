@@ -23,7 +23,12 @@ class BackupViewModel @Inject constructor(
         viewModelScope.launch {
             _backupStatus.value = BackupStatus.InProgress
             val result = backupService.performBackup(context, user)
-            _backupStatus.value = if (result) BackupStatus.Success else BackupStatus.Error("Backup failed. Check network or permissions.")
+            if (result.isSuccess) {
+                _backupStatus.value = BackupStatus.Success
+            } else {
+                val errorMsg = result.exceptionOrNull()?.message ?: "Backup failed. Check network or permissions."
+                _backupStatus.value = BackupStatus.Error(errorMsg)
+            }
         }
     }
 

@@ -13,38 +13,35 @@ class BackupService @Inject constructor(
     private val repository: LeaveRepository,
     private val driveService: GoogleDriveService
 ) {
-    suspend fun performBackup(context: Context, user: User): Boolean {
+    suspend fun performBackup(context: Context, user: User): Result<String> {
         return try {
             val balance = repository.getLeaveBalance(user.kgid)
             val entries = repository.getLeaveEntries(user.kgid).first()
             val currentYear = Calendar.getInstance().get(Calendar.YEAR)
 
-            // 1. Get or Create Folder
-            val folderId = driveService.getOrCreateFolder("Police Leave Manager") ?: return false
-
-            // 2. Generate and Upload Excel (Human readable)
+            // 1. Generate and Upload Excel (Human readable)
             val excelFile = ExcelExporter.exportToExcel(context, entries, currentYear)
-            driveService.uploadFile(excelFile, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", folderId)
+            driveService.uploadFile(excelFile, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
-            // 3. Generate and Upload JSON (Machine readable for Restore)
+            // 2. Generate and Upload JSON (Machine readable for Restore)
             val backupData = BackupData(
                 exportDate = System.currentTimeMillis(),
                 balance = balance,
                 entries = entries
             )
             val jsonFile = JsonBackupHandler.generateJsonBackupFile(context.cacheDir, backupData)
-            driveService.uploadFile(jsonFile, "application/json", folderId)
+            driveService.uploadFile(jsonFile, "application/json")
 
-            true
+            Result.success("Backup successful")
         } catch (e: Exception) {
             e.printStackTrace()
-            false
+            Result.failure(e)
         }
     }
 
     suspend fun restoreBackup(user: User): Boolean {
         return try {
-            val jsonString = driveService.downloadJsonBackup("Police Leave Manager") ?: return false
+            val jsonString = driveService.downloadJsonBackup() ?: return false
             val backupData = JsonBackupHandler.parseBackupData(jsonString)
             
             // Repopulate local database

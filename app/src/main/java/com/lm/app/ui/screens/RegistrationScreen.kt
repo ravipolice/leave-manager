@@ -38,6 +38,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun RegistrationScreen(
     onRegistrationSuccess: () -> Unit,
+    prefillEmail: String = "",
     authViewModel: AuthViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
@@ -50,7 +51,7 @@ fun RegistrationScreen(
     var department by remember { mutableStateOf("") }
     var district by remember { mutableStateOf("") }
     var placeOfWorking by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf(prefillEmail) }
     var phone by remember { mutableStateOf("") }
     var dateOfBirth by remember { mutableStateOf<Date?>(null) }
     var dateOfAppointment by remember { mutableStateOf<Date?>(null) }
@@ -71,18 +72,17 @@ fun RegistrationScreen(
     val authError by authViewModel.error.collectAsState()
     val pendingGoogleUser by authViewModel.pendingGoogleUser.collectAsState()
 
-    // Pre-fill from Google Sign-In if available
+    // Only use ViewModel fallback if prefillEmail wasn't provided via nav arg
     LaunchedEffect(pendingGoogleUser) {
-        pendingGoogleUser?.let { googleEmail ->
-            if (email.isBlank()) email = googleEmail
-            authViewModel.clearPendingGoogleUser()
+        if (prefillEmail.isBlank() && !pendingGoogleUser.isNullOrBlank() && email.isBlank()) {
+            email = pendingGoogleUser!!
         }
     }
 
     val fieldSpacing = 8.dp
     val sectionSpacing = 16.dp
 
-    val departments = listOf("Police", "Health", "Education", "Revenue", "Other")
+    val departments = listOf("Health", "Education", "Revenue", "Other")
     val allDistricts = listOf("Bagalkot", "Ballari", "Belagavi", "Bengaluru Rural", "Bengaluru Urban", "Bidar", "Chamarajanagar", "Chikkaballapura", "Chikkamagaluru", "Chitradurga", "Dakshina Kannada", "Davanagere", "Dharwad", "Gadag", "Hassan", "Haveri", "Kalaburagi", "Kodagu", "Kolar", "Koppal", "Mandya", "Mysuru", "Raichur", "Ramanagara", "Shivamogga", "Tumakuru", "Udupi", "Uttara Kannada", "Vijayanagara", "Vijayapura", "Yadgir").sorted()
 
     Scaffold(

@@ -1,6 +1,8 @@
 package com.lm.app.backup
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
 import com.google.api.client.http.FileContent
@@ -9,9 +11,11 @@ import com.google.api.client.json.gson.GsonFactory
 import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
 import com.google.api.services.drive.model.File
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import dagger.hilt.android.qualifiers.ApplicationContext
+import java.io.ByteArrayOutputStream
+import java.io.FileOutputStream
 import javax.inject.Inject
 import javax.inject.Singleton
 import java.io.File as JavaFile
@@ -20,80 +24,102 @@ import java.io.File as JavaFile
 class GoogleDriveService @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
+    companion object {
+        private const val APP_FOLDER_NAME = "LeaveManager"
+        private const val PROFILE_PHOTO_FILENAME = "profile_photo.jpg"
+    }
 
-    private val driveService: Drive? by lazy {
-        val account = GoogleSignIn.getLastSignedInAccount(context) ?: return@lazy null
-        val credential = GoogleAccountCredential.usingOAuth2(context, listOf(DriveScopes.DRIVE_FILE))
-        credential.selectedAccount = account.account
-
-        Drive.Builder(
+    private fun buildDriveService(): Drive? {
+        val account = GoogleSignIn.getLastSignedInAccount(context) ?: return null
+        val credential = GoogleAccountCredential.usingOAuth2(
+            context, listOf(DriveScopes.DRIVE_APPDATA)
+        ).apply { selectedAccount = account.account }
+        return Drive.Builder(
             NetHttpTransport(),
             GsonFactory.getDefaultInstance(),
             credential
-        ).setApplicationName("Police Leave Manager").build()
+        ).setApplicationName("Leave Manager").build()
     }
 
-    suspend fun uploadFile(javaFile: JavaFile, mimeType: String, folderId: String? = null): String? = withContext(Dispatchers.IO) {
-        val service = driveService ?: return@withContext null
+    /** Upload a profile photo bitmap to the user's Google Drive (LeaveManager folder) */
+    suspend fun uploadProfilePhoto(bitmap: Bitmap): Result<String> = withContext(Dispatchers.IO) {
+        try {
+            val service = buildDriveService() ?: throw Exception("Drive Service built as null (User not signed in?)")
 
+            val tempFile = JavaFile(context.cacheDir, PROFILE_PHOTO_FILENAME)
+            FileOutputStream(tempFile).use { out ->
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out)
+            }
+
+            val fileMetadata = File().apply {
+                name = PROFILE_PHOTO_FILENAME
+                parents = listOf("appDataFolder")
+            }
+            val mediaContent = FileContent("image/jpeg", tempFile)
+
+            val existingId = findFileId(PROFILE_PHOTO_FILENAME)
+            val uploadedFile = if (existingId != null) {
+                service.files().update(existingId, File(), mediaContent).execute()
+            } else {
+                service.files().create(fileMetadata, mediaContent).setFields("id").execute()
+            }
+
+            tempFile.delete()
+            Result.success(uploadedFile.id)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    /** Download the profile photo bitmap from the user's Google Drive */
+    suspend fun downloadProfilePhoto(): Bitmap? = withContext(Dispatchers.IO) {
+        try {
+            val service = buildDriveService() ?: return@withContext null
+            val fileId = findFileId(PROFILE_PHOTO_FILENAME) ?: return@withContext null
+
+            val outputStream = ByteArrayOutputStream()
+            service.files().get(fileId).executeMediaAndDownloadTo(outputStream)
+            val bytes = outputStream.toByteArray()
+            BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    suspend fun uploadFile(javaFile: JavaFile, mimeType: String): String? = withContext(Dispatchers.IO) {
+        val service = buildDriveService() ?: return@withContext null
         val fileMetadata = File().apply {
             name = javaFile.name
-            if (folderId != null) {
-                parents = listOf(folderId)
-            }
+            parents = listOf("appDataFolder")
         }
-
         val mediaContent = FileContent(mimeType, javaFile)
-        
-        // Check if file already exists to overwrite
-        val existingFileId = findFileId(javaFile.name, folderId)
-        
-        val uploadedFile = if (existingFileId != null) {
-            service.files().update(existingFileId, fileMetadata, mediaContent).execute()
+        val existingId = findFileId(javaFile.name)
+        val uploaded = if (existingId != null) {
+            service.files().update(existingId, fileMetadata, mediaContent).execute()
         } else {
-            service.files().create(fileMetadata, mediaContent).execute()
+            service.files().create(fileMetadata, mediaContent).setFields("id").execute()
         }
-        
-        uploadedFile.id
+        uploaded.id
     }
 
-    suspend fun getOrCreateFolder(folderName: String): String? = withContext(Dispatchers.IO) {
-        val service = driveService ?: return@withContext null
-        
-        val existingFolderId = findFileId(folderName, null, "application/vnd.google-apps.folder")
-        if (existingFolderId != null) return@withContext existingFolderId
-
-        val folderMetadata = File().apply {
-            name = folderName
-            mimeType = "application/vnd.google-apps.folder"
-        }
-
-        val folder = service.files().create(folderMetadata).setFields("id").execute()
-        folder.id
-    }
-
-    private fun findFileId(name: String, parentId: String?, mimeType: String? = null): String? {
-        val service = driveService ?: return null
-        var query = "name = '$name' and trashed = false"
-        if (parentId != null) query += " and '$parentId' in parents"
-        if (mimeType != null) query += " and mimeType = '$mimeType'"
-        
-        val result = service.files().list()
-            .setQ(query)
-            .setSpaces("drive")
-            .setFields("files(id)")
-            .execute()
-        
-        return result.files?.firstOrNull()?.id
-    }
-
-    suspend fun downloadJsonBackup(folderName: String): String? = withContext(Dispatchers.IO) {
-        val service = driveService ?: return@withContext null
-        val folderId = getOrCreateFolder(folderName) ?: return@withContext null
-        val fileId = findFileId("leave_backup_metadata.json", folderId) ?: return@withContext null
-        
-        val outputStream = java.io.ByteArrayOutputStream()
+    suspend fun downloadJsonBackup(): String? = withContext(Dispatchers.IO) {
+        val service = buildDriveService() ?: return@withContext null
+        val fileId = findFileId("leave_backup_metadata.json") ?: return@withContext null
+        val outputStream = ByteArrayOutputStream()
         service.files().get(fileId).executeMediaAndDownloadTo(outputStream)
         outputStream.toString("UTF-8")
+    }
+
+    private fun findFileId(name: String, mimeType: String? = null): String? {
+        val service = buildDriveService() ?: return null
+        var query = "name = '$name' and trashed = false"
+        if (mimeType != null) query += " and mimeType = '$mimeType'"
+
+        val result = service.files().list()
+            .setQ(query)
+            .setSpaces("appDataFolder")
+            .setFields("files(id)")
+            .execute()
+        return result.files?.firstOrNull()?.id
     }
 }

@@ -22,7 +22,19 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        getByName("debug") {
+            storeFile = file(System.getProperty("user.home") + "/.android/leavemanager.keystore")
+            storePassword = "android"
+            keyAlias = "newdebugkey"
+            keyPassword = "android"
+        }
+    }
+
     buildTypes {
+        getByName("debug") {
+            signingConfig = signingConfigs.getByName("debug")
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
@@ -86,6 +98,9 @@ dependencies {
 
     // Excel (Apache POI)
     implementation(libs.poi.ooxml)
+
+    // Image Loading (Coil)
+    implementation("io.coil-kt:coil-compose:2.6.0")
 
     // Serialization
     implementation(libs.kotlinx.serialization.json)

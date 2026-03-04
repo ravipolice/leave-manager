@@ -21,20 +21,29 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import androidx.navigation.navArgument
 import com.lm.app.auth.GoogleAuthHelper
+import com.lm.app.backup.BackupService
 import com.lm.app.data.User
 import com.lm.app.ui.screens.*
 import com.lm.app.ui.viewmodel.LeaveViewModel
 import com.lm.app.ui.viewmodel.UserViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import java.net.URLDecoder
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var backupService: BackupService
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             MaterialTheme {
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    AppNavigation()
+                    AppNavigation(backupService)
                 }
             }
         }
@@ -42,7 +51,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(backupService: BackupService) {
     val context = androidx.compose.ui.platform.LocalContext.current
     val navController = rememberNavController()
     val userViewModel: UserViewModel = hiltViewModel()
@@ -50,17 +59,16 @@ fun AppNavigation() {
 
     val currentUser by userViewModel.currentUser.collectAsState()
 
-    LaunchedEffect(Unit) {
-        val account = GoogleAuthHelper.getLastSignedInAccount(context)
-        if (account != null) {
-            userViewModel.setUser(User(kgid = "12345", name = account.displayName ?: "", gender = "male"))
-        }
-    }
+
 
     LaunchedEffect(currentUser) {
         if (currentUser != null && navController.currentDestination?.route == "login") {
-            navController.navigate("dashboard") {
-                popUpTo("login") { inclusive = true }
+            // Only auto-navigate if user is already logged in at app start (not after registration)
+            val previousRoute = navController.previousBackStackEntry?.destination?.route
+            if (previousRoute == null) { // Only at app start, no previous screen
+                navController.navigate("dashboard") {
+                    popUpTo("login") { inclusive = true }
+                }
             }
         }
     }
@@ -71,17 +79,18 @@ fun AppNavigation() {
 
     ModalNavigationDrawer(
         drawerState = drawerState,
-        gesturesEnabled = currentRoute != "login",
+        gesturesEnabled = currentRoute !in listOf("login", "register", "forgot_pin"),
         drawerContent = {
-            if (currentRoute != "login") {
+            if (currentRoute !in listOf("login", "register", "forgot_pin")) {
                 com.lm.app.ui.components.NavigationDrawer(
                     navController = navController,
                     drawerState = drawerState,
                     scope = scope,
                     userViewModel = userViewModel,
+                    backupService = backupService,
                     currentRoute = currentRoute,
                     onLogout = {
-                        userViewModel.logout()
+                        userViewModel.logout(context)
                         navController.navigate("login") {
                             popUpTo(0) { inclusive = true }
                         }
@@ -102,8 +111,9 @@ fun AppNavigation() {
                             popUpTo("login") { inclusive = true } 
                         } 
                     },
-                    onRegisterClick = {
-                        navController.navigate("register")
+                    onRegisterClick = { email ->
+                        val encoded = URLEncoder.encode(email, StandardCharsets.UTF_8.toString())
+                        navController.navigate("register/$encoded")
                     },
                     onForgotPinClick = {
                         navController.navigate("forgot_pin")
@@ -116,11 +126,17 @@ fun AppNavigation() {
                     onPinResetSuccess = { navController.popBackStack() }
                 )
             }
-            composable("register") {
+            composable(
+                route = "register/{email}",
+                arguments = listOf(navArgument("email") { defaultValue = ""; type = NavType.StringType })
+            ) { backStackEntry ->
+                val encodedEmail = backStackEntry.arguments?.getString("email") ?: ""
+                val googleEmail = URLDecoder.decode(encodedEmail, StandardCharsets.UTF_8.toString())
                 RegistrationScreen(
+                    prefillEmail = googleEmail,
                     onRegistrationSuccess = {
                         navController.navigate("login") {
-                            popUpTo("register") { inclusive = true }
+                            popUpTo(0) { inclusive = true }
                         }
                     }
                 )
@@ -162,6 +178,11 @@ fun AppNavigation() {
                 val type = backStackEntry.arguments?.getString("type") ?: "CL"
                 ApplyLeaveScreen(
                     onNavigateBack = { navController.popBackStack() },
+                    onSaveSuccess = {
+                        navController.navigate("dashboard") {
+                            popUpTo("dashboard") { inclusive = false }
+                        }
+                    },
                     userViewModel = userViewModel,
                     leaveViewModel = leaveViewModel,
                     initialType = type
@@ -170,6 +191,11 @@ fun AppNavigation() {
             composable("apply_leave") {
                 ApplyLeaveScreen(
                     onNavigateBack = { navController.popBackStack() },
+                    onSaveSuccess = {
+                        navController.navigate("dashboard") {
+                            popUpTo("dashboard") { inclusive = false }
+                        }
+                    },
                     userViewModel = userViewModel,
                     leaveViewModel = leaveViewModel,
                     initialType = "CL"

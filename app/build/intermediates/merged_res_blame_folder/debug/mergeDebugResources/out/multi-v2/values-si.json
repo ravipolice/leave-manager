@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.lm.app-mergeDebugResources-78:/values-si/values-si.xml",
+            "outputFile": "com.lm.app-mergeDebugResources-79:/values-si/values-si.xml",
             "map": [
                 {
                     "source": "C:\\Users\\ravip\\.gradle\\caches\\8.13\\transforms\\4cc9bc54e67b1ce49aff75e97e69bf57\\transformed\\browser-1.4.0\\res\\values-si\\values-si.xml",
