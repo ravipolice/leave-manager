@@ -33,9 +33,15 @@ class BackupService @Inject constructor(
             driveService.uploadFile(jsonFile, "application/json")
 
             Result.success("Backup successful")
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             e.printStackTrace()
-            Result.failure(e)
+            val msg = e.message ?: ""
+            val userFriendlyMsg = when {
+                msg.contains("403") -> "403 Forbidden: $msg. \n\nCheck your Project Number at [Google Cloud](https://console.cloud.google.com) match '24036396436'."
+                msg.contains("401") -> "401 Unauthorized: Log out and back in to refresh your token."
+                else -> "Error: $msg"
+            }
+            Result.failure(Exception(userFriendlyMsg))
         }
     }
 

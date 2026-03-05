@@ -415,25 +415,25 @@ public final class DaggerMainApplication_HiltComponents_SingletonC {
 
     @IdentifierNameString
     private static final class LazyClassKeyProvider {
-      static String com_lm_app_ui_viewmodel_UserViewModel = "com.lm.app.ui.viewmodel.UserViewModel";
+      static String com_lm_app_ui_viewmodel_BackupViewModel = "com.lm.app.ui.viewmodel.BackupViewModel";
 
       static String com_lm_app_ui_viewmodel_LeaveViewModel = "com.lm.app.ui.viewmodel.LeaveViewModel";
 
-      static String com_lm_app_ui_viewmodel_BackupViewModel = "com.lm.app.ui.viewmodel.BackupViewModel";
-
       static String com_lm_app_ui_viewmodel_AuthViewModel = "com.lm.app.ui.viewmodel.AuthViewModel";
 
-      @KeepFieldType
-      UserViewModel com_lm_app_ui_viewmodel_UserViewModel2;
-
-      @KeepFieldType
-      LeaveViewModel com_lm_app_ui_viewmodel_LeaveViewModel2;
+      static String com_lm_app_ui_viewmodel_UserViewModel = "com.lm.app.ui.viewmodel.UserViewModel";
 
       @KeepFieldType
       BackupViewModel com_lm_app_ui_viewmodel_BackupViewModel2;
 
       @KeepFieldType
+      LeaveViewModel com_lm_app_ui_viewmodel_LeaveViewModel2;
+
+      @KeepFieldType
       AuthViewModel com_lm_app_ui_viewmodel_AuthViewModel2;
+
+      @KeepFieldType
+      UserViewModel com_lm_app_ui_viewmodel_UserViewModel2;
     }
   }
 
@@ -483,25 +483,25 @@ public final class DaggerMainApplication_HiltComponents_SingletonC {
 
     @IdentifierNameString
     private static final class LazyClassKeyProvider {
-      static String com_lm_app_ui_viewmodel_LeaveViewModel = "com.lm.app.ui.viewmodel.LeaveViewModel";
+      static String com_lm_app_ui_viewmodel_AuthViewModel = "com.lm.app.ui.viewmodel.AuthViewModel";
 
       static String com_lm_app_ui_viewmodel_BackupViewModel = "com.lm.app.ui.viewmodel.BackupViewModel";
 
-      static String com_lm_app_ui_viewmodel_AuthViewModel = "com.lm.app.ui.viewmodel.AuthViewModel";
-
       static String com_lm_app_ui_viewmodel_UserViewModel = "com.lm.app.ui.viewmodel.UserViewModel";
 
-      @KeepFieldType
-      LeaveViewModel com_lm_app_ui_viewmodel_LeaveViewModel2;
-
-      @KeepFieldType
-      BackupViewModel com_lm_app_ui_viewmodel_BackupViewModel2;
+      static String com_lm_app_ui_viewmodel_LeaveViewModel = "com.lm.app.ui.viewmodel.LeaveViewModel";
 
       @KeepFieldType
       AuthViewModel com_lm_app_ui_viewmodel_AuthViewModel2;
 
       @KeepFieldType
+      BackupViewModel com_lm_app_ui_viewmodel_BackupViewModel2;
+
+      @KeepFieldType
       UserViewModel com_lm_app_ui_viewmodel_UserViewModel2;
+
+      @KeepFieldType
+      LeaveViewModel com_lm_app_ui_viewmodel_LeaveViewModel2;
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {

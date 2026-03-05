@@ -33,10 +33,13 @@ object ExcelExporter {
             row.createCell(5).setCellValue(dateFormat.format(entry.createdAt))
         }
 
-        // Auto-size columns
-        for (i in headers.indices) {
-            sheet.autoSizeColumn(i)
-        }
+        // Simple fixed column widths as autoSizeColumn crashes on Android (requires AWT)
+        sheet.setColumnWidth(0, 4000)
+        sheet.setColumnWidth(1, 4000)
+        sheet.setColumnWidth(2, 4000)
+        sheet.setColumnWidth(3, 2000)
+        sheet.setColumnWidth(4, 8000)
+        sheet.setColumnWidth(5, 4000)
 
         val fileName = "Leave_Register_$year.xlsx"
         val file = File(context.cacheDir, fileName)

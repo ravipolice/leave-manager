@@ -103,23 +103,37 @@ class GoogleDriveService @Inject constructor(
     }
 
     suspend fun downloadJsonBackup(): String? = withContext(Dispatchers.IO) {
-        val service = buildDriveService() ?: return@withContext null
-        val fileId = findFileId("leave_backup_metadata.json") ?: return@withContext null
-        val outputStream = ByteArrayOutputStream()
-        service.files().get(fileId).executeMediaAndDownloadTo(outputStream)
-        outputStream.toString("UTF-8")
+        try {
+            val service = buildDriveService() ?: return@withContext null
+            val fileId = findFileId("leave_backup_metadata.json") ?: return@withContext null
+            val outputStream = ByteArrayOutputStream()
+            service.files().get(fileId).executeMediaAndDownloadTo(outputStream)
+            outputStream.toString("UTF-8")
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
     }
 
     private fun findFileId(name: String, mimeType: String? = null): String? {
         val service = buildDriveService() ?: return null
-        var query = "name = '$name' and trashed = false"
-        if (mimeType != null) query += " and mimeType = '$mimeType'"
+        try {
+            var query = "name = '$name' and trashed = false"
+            if (mimeType != null) query += " and mimeType = '$mimeType'"
 
-        val result = service.files().list()
-            .setQ(query)
-            .setSpaces("appDataFolder")
-            .setFields("files(id)")
-            .execute()
-        return result.files?.firstOrNull()?.id
+            val result = service.files().list()
+                .setQ(query)
+                .setSpaces("appDataFolder")
+                .setFields("files(id, name)")
+                .execute()
+            
+            return result.files?.firstOrNull()?.id
+        } catch (e: com.google.api.client.googleapis.json.GoogleJsonResponseException) {
+            // Re-throw with clear message from Google
+            throw Exception("Google API Error: ${e.details?.message ?: e.message}")
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw e 
+        }
     }
 }
