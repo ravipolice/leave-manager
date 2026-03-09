@@ -10,6 +10,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
@@ -55,6 +57,7 @@ fun NavigationDrawer(
     onLogout: () -> Unit
 ) {
     val context = LocalContext.current
+    val clipboardManager = LocalClipboardManager.current
     val currentUser by userViewModel.currentUser.collectAsState()
     val profilePhotoBitmap by userViewModel.profilePhotoBitmap.collectAsState()
     var showEditProfileDialog by remember { mutableStateOf(false) }
@@ -162,14 +165,81 @@ fun NavigationDrawer(
                         )
                     }
                     
-                    // KGID (larger)
-                    Text(
-                        text = currentUser?.kgid?.let { "KGID: $it" } ?: "",
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            color = Color.White.copy(alpha = 0.95f),
-                            fontSize = 16.sp
+                    // KGID (with copy icon)
+                    Row(
+                        modifier = Modifier
+                            .clickable {
+                                currentUser?.kgid?.let {
+                                    clipboardManager.setText(AnnotatedString(it))
+                                    Toast.makeText(context, "KGID copied: $it", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                            .padding(horizontal = 8.dp, vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = currentUser?.kgid?.let { "KGID: $it" } ?: "",
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                color = Color.White.copy(alpha = 0.95f),
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold
+                            )
                         )
-                    )
+                        Spacer(Modifier.width(8.dp))
+                        Icon(
+                            imageVector = Icons.Default.ContentCopy,
+                            contentDescription = "Copy KGID",
+                            tint = Color.White.copy(alpha = 0.7f),
+                            modifier = Modifier.size(14.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    // 📱 Mobile Number
+                    if (!currentUser?.phone.isNullOrBlank()) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Phone,
+                                contentDescription = null,
+                                tint = Color.White.copy(alpha = 0.8f),
+                                modifier = Modifier.size(14.dp)
+                            )
+                            Spacer(Modifier.width(6.dp))
+                            Text(
+                                text = currentUser?.phone ?: "",
+                                style = MaterialTheme.typography.bodySmall.copy(
+                                    color = Color.White.copy(alpha = 0.9f),
+                                    fontSize = 14.sp
+                                )
+                            )
+                        }
+                    }
+
+                    // ✉️ Email
+                    if (!currentUser?.email.isNullOrBlank()) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(top = 2.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Email,
+                                contentDescription = null,
+                                tint = Color.White.copy(alpha = 0.8f),
+                                modifier = Modifier.size(14.dp)
+                            )
+                            Spacer(Modifier.width(6.dp))
+                            Text(
+                                text = currentUser?.email ?: "",
+                                style = MaterialTheme.typography.bodySmall.copy(
+                                    color = Color.White.copy(alpha = 0.8f),
+                                    fontSize = 12.sp
+                                )
+                            )
+                        }
+                    }
                 }
             }
 
@@ -209,13 +279,34 @@ fun NavigationDrawer(
                             currentUser?.let { user ->
                                 val result = backupService?.performBackup(context, user)
                                 if (result?.isSuccess == true) {
-                                    Toast.makeText(context, "✅ Backup saved to LeaveManager folder!", Toast.LENGTH_LONG).show()
+                                    Toast.makeText(context, "✅ Backup succeeded (AppData folder)!", Toast.LENGTH_LONG).show()
                                 } else {
                                     val errorMsg = result?.exceptionOrNull()?.message ?: "Unknown error"
                                     Toast.makeText(context, "Backup failed: $errorMsg", Toast.LENGTH_LONG).show()
                                 }
                             } ?: run {
                                 Toast.makeText(context, "Must be logged in to backup", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                )
+
+                DrawerItem(
+                    icon = Icons.Default.ExitToApp,
+                    text = "Restore from Google Drive",
+                    onClick = {
+                        scope.launch { 
+                            drawerState.close() 
+                            Toast.makeText(context, "Restoring data from Drive...", Toast.LENGTH_SHORT).show()
+                            currentUser?.let { user ->
+                                val success = backupService?.restoreBackup(user) ?: false
+                                if (success) {
+                                    Toast.makeText(context, "✅ Data restored successfully!", Toast.LENGTH_LONG).show()
+                                } else {
+                                    Toast.makeText(context, "Restore failed: No backup found in Drive.", Toast.LENGTH_LONG).show()
+                                }
+                            } ?: run {
+                                Toast.makeText(context, "Must be logged in to restore", Toast.LENGTH_SHORT).show()
                             }
                         }
                     }
@@ -246,7 +337,6 @@ fun NavigationDrawer(
                 var showLogoutDialog by remember { mutableStateOf(false) }
                 var isLoggingOut by remember { mutableStateOf(false) }
                 var showSupportDialog by remember { mutableStateOf(false) }
-                val clipboardManager = LocalClipboardManager.current
 
                 if (showLogoutDialog) {
                     AlertDialog(

@@ -27,13 +27,19 @@ object LeaveBalanceCalculator {
                 )
             }
             "EL" -> {
-                if (entry.elEntryType == "taken") {
-                    balance.copy(elBalance = (balance.elBalance - entry.totalDays).coerceAtLeast(0.0))
-                } else {
-                    balance
+                when (entry.elEntryType) {
+                    "taken" -> balance.copy(elBalance = (balance.elBalance - entry.totalDays).coerceAtLeast(0.0))
+                    "credit" -> balance.copy(elBalance = balance.elBalance + entry.totalDays)
+                    else -> balance
                 }
             }
-            "HPL" -> balance.copy(hplBalance = (balance.hplBalance - entry.totalDays).coerceAtLeast(0.0))
+            "HPL" -> {
+                if (entry.elEntryType == "credit") {
+                    balance.copy(hplBalance = balance.hplBalance + entry.totalDays)
+                } else {
+                    balance.copy(hplBalance = (balance.hplBalance - entry.totalDays).coerceAtLeast(0.0))
+                }
+            }
             "CML" -> balance.copy(hplBalance = (balance.hplBalance - (entry.totalDays * 2)).coerceAtLeast(0.0))
             "LND" -> balance // Maybe track LND used in future, not doing now
             "CCL" -> balance.copy(cclUsed = balance.cclUsed + entry.totalDays)
@@ -62,13 +68,19 @@ object LeaveBalanceCalculator {
                 )
             }
             "EL" -> {
-                if (entry.elEntryType == "taken") {
-                    balance.copy(elBalance = balance.elBalance + entry.totalDays)
-                } else {
-                    balance
+                when (entry.elEntryType) {
+                    "taken" -> balance.copy(elBalance = balance.elBalance + entry.totalDays)
+                    "credit" -> balance.copy(elBalance = (balance.elBalance - entry.totalDays).coerceAtLeast(0.0))
+                    else -> balance
                 }
             }
-            "HPL" -> balance.copy(hplBalance = balance.hplBalance + entry.totalDays)
+            "HPL" -> {
+                if (entry.elEntryType == "credit") {
+                    balance.copy(hplBalance = (balance.hplBalance - entry.totalDays).coerceAtLeast(0.0))
+                } else {
+                    balance.copy(hplBalance = balance.hplBalance + entry.totalDays)
+                }
+            }
             "CML" -> balance.copy(hplBalance = balance.hplBalance + (entry.totalDays * 2))
             "LND" -> balance 
             "CCL" -> balance.copy(cclUsed = (balance.cclUsed - entry.totalDays).coerceAtLeast(0.0))

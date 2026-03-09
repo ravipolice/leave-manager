@@ -21,22 +21,35 @@ class AuthRepository @Inject constructor(
     private val functions = Firebase.functions("asia-south1")
     private val usersCollection = firestore.collection("users")
 
-    suspend fun loginWithEmailPin(email: String, pin: String): Result<User> {
+    suspend fun loginWithEmailPin(identifier: String, pin: String): Result<User> {
         return try {
-            val normalizedEmail = email.trim().lowercase()
+            val trimmedInput = identifier.trim()
+            val isEmail = android.util.Patterns.EMAIL_ADDRESS.matcher(trimmedInput).matches()
             
-            // Query Firestore for user with email
-            val snapshot = usersCollection.whereEqualTo("email", normalizedEmail).limit(1).get().await()
+            // Query Firestore for user with email OR phone
+            val query = if (isEmail) {
+                usersCollection.whereEqualTo("email", trimmedInput.lowercase())
+            } else {
+                usersCollection.whereEqualTo("phone", trimmedInput)
+            }
+            
+            val snapshot = query.limit(1).get().await()
             if (snapshot.isEmpty) {
-                return Result.failure(Exception("User not found"))
+                return Result.failure(Exception(if (isEmail) "Email not found" else "Mobile Number not found"))
             }
 
             val doc = snapshot.documents.first()
             val storedPin = doc.getString("pin") ?: ""
             
-            // Using plain-text for demo, should be hashed in production
+            // Check PIN
             if (storedPin != pin) {
-                return Result.failure(Exception("Invalid PIN"))
+                return Result.failure(Exception("Incorrect PIN"))
+            }
+
+            // Check approval status
+            val status = doc.getString("status") ?: "approved"
+            if (status != "approved") {
+                return Result.failure(Exception("Account pending approval. Please contact administrator."))
             }
 
             // Authenticate anonymously in Firebase to get a session
@@ -82,7 +95,10 @@ class AuthRepository @Inject constructor(
                 "department" to user.department,
                 "dob" to user.dob?.toString(),
                 "doa" to user.doa?.toString(),
-                "pin" to pin // Storing plain PIN for demo purposes (should hash)
+                "pin" to pin, // Storing plain PIN for demo purposes (should hash)
+                "status" to "pending",
+                "app" to "leave-manager",
+                "createdAt" to System.currentTimeMillis()
             )
 
             // Save to Firestore
@@ -185,6 +201,12 @@ class AuthRepository @Inject constructor(
             } 
             
             val doc = snapshot.documents.first()
+            
+            // Check approval status for Google Sign-In too - DEFAULT TO APPROVED for existing users
+            val status = doc.getString("status") ?: "approved"
+            if (status != "approved") {
+                return Result.failure(Exception("Account pending approval. Please contact administrator."))
+            }
             val user = User(
                 kgid = doc.id,
                 name = doc.getString("name") ?: "",
@@ -202,6 +224,28 @@ class AuthRepository @Inject constructor(
         } catch (e: Exception) {
              Log.e(TAG, "Google Sign-In failed", e)
              Result.failure(e)
+        }
+    }
+
+    suspend fun updateLastActive(kgid: String) {
+        try {
+            usersCollection.document(kgid).update("lastActive", System.currentTimeMillis()).await()
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to update lastActive", e)
+        }
+    }
+
+    suspend fun getDepartments(): List<String> {
+        return try {
+            val snapshot = firestore.collection("leave_manager_departments").get().await()
+            if (snapshot.isEmpty) {
+                listOf("Health", "Education", "Revenue", "Other")
+            } else {
+                snapshot.documents.mapNotNull { it.getString("name") }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error fetching departments", e)
+            listOf("Health", "Education", "Revenue", "Other")
         }
     }
 }

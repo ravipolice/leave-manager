@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.lm.app-mergeDebugResources-79:/values-large-v4/values-large-v4.xml",
+            "outputFile": "com.lm.app-mergeDebugResources-84:/values-large-v4/values-large-v4.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\ravip\\.gradle\\caches\\8.13\\transforms\\fa87121efca0f281d5b81cea4eb0f944\\transformed\\appcompat-1.6.1\\res\\values-large-v4\\values-large-v4.xml",
+                    "source": "C:\\Users\\ravip\\.gradle\\caches\\8.13\\transforms\\e4104f3d381521feb694d1e788732cd6\\transformed\\appcompat-1.6.1\\res\\values-large-v4\\values-large-v4.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10",
                         "startColumns": "4,4,4,4,4,4,4,4,4",
@@ -14,7 +14,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\ravip\\.gradle\\caches\\8.13\\transforms\\e61d420851805e4542dbe542135ab50e\\transformed\\material-1.12.0\\res\\values-large-v4\\values-large-v4.xml",
+                    "source": "C:\\Users\\ravip\\.gradle\\caches\\8.13\\transforms\\3a3013af17c3edfb42891a0cb8278ea4\\transformed\\material-1.12.0\\res\\values-large-v4\\values-large-v4.xml",
                     "from": {
                         "startLines": "2,3,4,5",
                         "startColumns": "4,4,4,4",

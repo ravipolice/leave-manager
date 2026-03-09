@@ -1,10 +1,27 @@
 {
     "logs": [
         {
-            "outputFile": "com.lm.app-mergeDebugResources-79:/values-watch-v20/values-watch-v20.xml",
+            "outputFile": "com.lm.app-mergeDebugResources-84:/values-watch-v20/values-watch-v20.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\ravip\\.gradle\\caches\\8.13\\transforms\\fa87121efca0f281d5b81cea4eb0f944\\transformed\\appcompat-1.6.1\\res\\values-watch-v20\\values-watch-v20.xml",
+                    "source": "C:\\Users\\ravip\\.gradle\\caches\\8.13\\transforms\\8a7c9892f2733c2e1950da515456b78e\\transformed\\play-services-auth-21.2.0\\res\\values-watch-v20\\values.xml",
+                    "from": {
+                        "startLines": "4,5,6,7,8,9,10,11",
+                        "startColumns": "0,0,0,0,0,0,0,0",
+                        "startOffsets": "173,248,324,399,474,561,638,725",
+                        "endColumns": "74,75,74,74,86,76,86,75",
+                        "endOffsets": "247,323,398,473,560,637,724,800"
+                    },
+                    "to": {
+                        "startLines": "2,3,4,5,6,7,8,9",
+                        "startColumns": "4,4,4,4,4,4,4,4",
+                        "startOffsets": "55,134,214,293,372,463,544,635",
+                        "endColumns": "78,79,78,78,90,80,90,79",
+                        "endOffsets": "129,209,288,367,458,539,630,710"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\ravip\\.gradle\\caches\\8.13\\transforms\\e4104f3d381521feb694d1e788732cd6\\transformed\\appcompat-1.6.1\\res\\values-watch-v20\\values-watch-v20.xml",
                     "from": {
                         "startLines": "2,5,8",
                         "startColumns": "4,4,4",
@@ -20,23 +37,6 @@
                         "endLines": "12,15,18",
                         "endColumns": "12,12,12",
                         "endOffsets": "869,1040,1213"
-                    }
-                },
-                {
-                    "source": "C:\\Users\\ravip\\.gradle\\caches\\8.13\\transforms\\82d62556a5ac59a6ad2aa923b7877c1b\\transformed\\play-services-auth-21.2.0\\res\\values-watch-v20\\values.xml",
-                    "from": {
-                        "startLines": "4,5,6,7,8,9,10,11",
-                        "startColumns": "0,0,0,0,0,0,0,0",
-                        "startOffsets": "173,248,324,399,474,561,638,725",
-                        "endColumns": "74,75,74,74,86,76,86,75",
-                        "endOffsets": "247,323,398,473,560,637,724,800"
-                    },
-                    "to": {
-                        "startLines": "2,3,4,5,6,7,8,9",
-                        "startColumns": "4,4,4,4,4,4,4,4",
-                        "startOffsets": "55,134,214,293,372,463,544,635",
-                        "endColumns": "78,79,78,78,90,80,90,79",
-                        "endOffsets": "129,209,288,367,458,539,630,710"
                     }
                 }
             ]

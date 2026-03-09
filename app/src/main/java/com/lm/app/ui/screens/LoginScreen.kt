@@ -62,7 +62,7 @@ fun LoginScreen(
     val navigateToRegister by authViewModel.navigateToRegister.collectAsState()
     
     // UI State
-    var email by remember { mutableStateOf("") }
+    var identifier by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var pinVisible by remember { mutableStateOf(false) }
     var isEmailPinExpanded by remember { mutableStateOf(false) }
@@ -115,14 +115,20 @@ fun LoginScreen(
                 verticalArrangement = Arrangement.Center
             ) {
                 // App Logo
-                Image(
-                    painter = painterResource(id = R.drawable.app_logo),
-                    contentDescription = "Leave Manager Logo",
+                Surface(
                     modifier = Modifier
-                        .size(100.dp)
+                        .size(120.dp)
                         .clip(CircleShape),
-                    contentScale = ContentScale.Fit
-                )
+                    tonalElevation = 2.dp,
+                    color = Color.White
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.app_logo_premium),
+                        contentDescription = "Leave Manager Logo",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                }
 
                 Spacer(Modifier.height(16.dp))
 
@@ -181,7 +187,7 @@ fun LoginScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                "Login with email and pin",
+                                "Login with email / phone",
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Medium
                             )
@@ -200,11 +206,11 @@ fun LoginScreen(
                                     .padding(horizontal = 16.dp, vertical = 8.dp),
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                // Email Input
+                                // Identifier Input
                                 OutlinedTextField(
-                                    value = email,
-                                    onValueChange = { email = it.trim() },
-                                    label = { Text("Registered Email") },
+                                    value = identifier,
+                                    onValueChange = { identifier = it.trim() },
+                                    label = { Text("Email or Mobile Number") },
                                     modifier = Modifier.fillMaxWidth(),
                                     keyboardOptions = KeyboardOptions(
                                         keyboardType = KeyboardType.Email,
@@ -234,10 +240,10 @@ fun LoginScreen(
                                     ),
                                     keyboardActions = KeyboardActions(onDone = {
                                         focusManager.clearFocus()
-                                        if (android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                                            authViewModel.login(email, password)
+                                        if (identifier.isNotBlank()) {
+                                            authViewModel.login(identifier, password)
                                         } else {
-                                            authViewModel.setError("Please enter a valid email")
+                                            authViewModel.setError("Please enter your email or mobile")
                                         }
                                     })
                                 )
@@ -246,14 +252,14 @@ fun LoginScreen(
                                 Button(
                                     onClick = {
                                         haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                                        if (android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                                            authViewModel.login(email, password)
+                                        if (identifier.isNotBlank()) {
+                                            authViewModel.login(identifier, password)
                                         } else {
-                                             authViewModel.setError("Please enter a valid email")
+                                             authViewModel.setError("Please enter your email or mobile")
                                         }
                                     },
                                     modifier = Modifier.fillMaxWidth().height(50.dp),
-                                    enabled = email.isNotBlank() && password.length == 6
+                                    enabled = identifier.isNotBlank() && password.length == 6
                                 ) { 
                                     Text("Login") 
                                 }

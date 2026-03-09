@@ -23,6 +23,12 @@ android {
     }
 
     signingConfigs {
+        create("release") {
+            storeFile = file("C:/Users/ravip/AndroidStudioProjects/PMD Key/upload_key.jks")
+            storePassword = "PmdAdmin@2026"
+            keyAlias = "upload"
+            keyPassword = "PmdAdmin@2026"
+        }
         getByName("debug") {
             storeFile = file(System.getProperty("user.home") + "/.android/leavemanager.keystore")
             storePassword = "android"
@@ -36,6 +42,7 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
         release {
+            signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
@@ -104,6 +111,7 @@ dependencies {
 
     // Serialization
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.work.runtime.ktx)
 
     // Testing
     testImplementation(libs.junit)

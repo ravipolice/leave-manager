@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="md_theme_dark_onPrimary">#0D47A1</color>
+    <color name="md_theme_dark_onPrimaryContainer">#E3F2FD</color>
+    <color name="md_theme_dark_onSecondary">#0D47A1</color>
+    <color name="md_theme_dark_primary">#90CAF9</color>
+    <color name="md_theme_dark_primaryContainer">#1E88E5</color>
+    <color name="md_theme_dark_secondary">#64B5F6</color>
+    <style name="Theme.PoliceMobileDirectory" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="colorPrimary">@color/md_theme_dark_primary</item>
+        <item name="colorOnPrimary">@color/md_theme_dark_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/md_theme_dark_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/md_theme_dark_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/md_theme_dark_secondary</item>
+        <item name="colorOnSecondary">@color/md_theme_dark_onSecondary</item>
+    </style>
+</resources>

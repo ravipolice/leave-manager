@@ -53,15 +53,15 @@ fun LeaveDashboardScreen(
     }
 
     var showEditBalanceDialog by remember { mutableStateOf(false) }
-    var elText by remember { mutableStateOf("0.0") }
-    var hplText by remember { mutableStateOf("0.0") }
+    var elText by remember { mutableStateOf("0") }
+    var hplText by remember { mutableStateOf("0") }
     var showEditClLimitDialog by remember { mutableStateOf(false) }
 
     // Update the dialog texts when balance changes or dialog is about to show
     LaunchedEffect(showEditBalanceDialog, balance) {
         if (showEditBalanceDialog) {
-            elText = balance?.elManualBalance?.toString() ?: "0.0"
-            hplText = balance?.hplBalance?.toString() ?: "0.0"
+            elText = balance?.elManualBalance?.toString()?.removeSuffix(".0") ?: "0"
+            hplText = balance?.hplBalance?.toString()?.removeSuffix(".0") ?: "0"
         }
     }
 
@@ -222,7 +222,7 @@ fun LeaveDashboardScreen(
                             Box(modifier = Modifier.weight(1f)) {
                                 LeaveTile(
                                     title = "Casual Leave",
-                                    balance = balance?.clRemaining?.let { "%.1f".format(it) } ?: "-",
+                                    balance = balance?.clRemaining?.let { if (it % 1.0 == 0.0) it.toInt().toString() else "%.1f".format(it) } ?: "-",
                                     subtitle = "of ${balance?.clAnnualLimit ?: 15} days",
                                     icon = Icons.Default.WbSunny,
                                     gradient = listOf(Color(0xFF43A047), Color(0xFF1B5E20)),
@@ -405,7 +405,7 @@ fun ApplyTile(onClick: () -> Unit) {
             ) {
                 Column {
                     Text(
-                        text = "Apply for Leave",
+                        text = "New Leave Entry",
                         color = Color.White,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
@@ -436,8 +436,10 @@ fun LeaveOverviewCard(balance: LeaveBalance?, statistics: LeaveStatistics?) {
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Row(modifier = Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
-            OverviewStat(label = "Taken", value = statistics?.totalTaken?.let { "%.1f".format(it) } ?: "0.0", icon = Icons.Default.EventBusy, color = MaterialTheme.colorScheme.error)
-            OverviewStat(label = "Remaining", value = statistics?.totalRemaining?.let { "%.1f".format(it) } ?: "0.0", icon = Icons.Default.EventAvailable, color = Color(0xFF43A047))
+            val takenText = statistics?.totalTaken?.let { if (it % 1.0 == 0.0) it.toInt().toString() else "%.1f".format(it) } ?: "0"
+            val remainingText = statistics?.totalRemaining?.let { if (it % 1.0 == 0.0) it.toInt().toString() else "%.1f".format(it) } ?: "0"
+            OverviewStat(label = "Taken", value = takenText, icon = Icons.Default.EventBusy, color = MaterialTheme.colorScheme.error)
+            OverviewStat(label = "Remaining", value = remainingText, icon = Icons.Default.EventAvailable, color = Color(0xFF43A047))
             OverviewStat(label = "Most Used", value = statistics?.mostUsedType?.ifEmpty { "-" } ?: "-", icon = Icons.Default.TrendingUp, color = MaterialTheme.colorScheme.primary)
         }
     }

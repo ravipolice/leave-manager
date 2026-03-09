@@ -95,7 +95,8 @@ class GoogleDriveService @Inject constructor(
         val mediaContent = FileContent(mimeType, javaFile)
         val existingId = findFileId(javaFile.name)
         val uploaded = if (existingId != null) {
-            service.files().update(existingId, fileMetadata, mediaContent).execute()
+            val updateMetadata = File().apply { name = javaFile.name }
+            service.files().update(existingId, updateMetadata, mediaContent).execute()
         } else {
             service.files().create(fileMetadata, mediaContent).setFields("id").execute()
         }

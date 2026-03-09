@@ -33,10 +33,16 @@ class LeaveViewModel @Inject constructor(
     private val _saveSuccess = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
     val saveSuccess: SharedFlow<Unit> = _saveSuccess.asSharedFlow()
 
+    private var entriesJob: kotlinx.coroutines.Job? = null
+    private var lastKgid: String? = null
+
     fun refreshData(user: User) {
         viewModelScope.launch {
-            _uiState.value = LeaveUiState.Loading
+            // Loading state only if we don't have balance yet (initial load)
+            if (_balance.value == null) _uiState.value = LeaveUiState.Loading
+            
             try {
+                // Repository methods now use withContext(Dispatchers.IO) internally
                 var currentBalance = leaveRepository.getLeaveBalance(user.kgid)
                 currentBalance = checkAndApplyAutoCredits(user.kgid, currentBalance)
                 
@@ -46,11 +52,21 @@ class LeaveViewModel @Inject constructor(
                 val stats = leaveRepository.getLeaveStatistics(user.kgid, currentYear)
                 _statistics.value = stats
 
-                leaveRepository.getLeaveEntries(user.kgid).collect { all ->
-                    _entries.value = all
+                // Setup entries collector only once per user
+                if (lastKgid != user.kgid) {
+                    lastKgid = user.kgid
+                    entriesJob?.cancel()
+                    entriesJob = viewModelScope.launch {
+                        leaveRepository.getLeaveEntries(user.kgid).collect { all ->
+                            _entries.value = all
+                            _uiState.value = LeaveUiState.Success
+                        }
+                    }
+                } else {
                     _uiState.value = LeaveUiState.Success
                 }
             } catch (e: Exception) {
+                Log.e("LeaveViewModel", "Refresh failed", e)
                 _uiState.value = LeaveUiState.Error(e.message ?: "An error occurred")
             }
         }
@@ -145,6 +161,41 @@ class LeaveViewModel @Inject constructor(
                     hplBalance = newHpl
                 )
                 leaveRepository.saveLeaveBalance(updatedBalance)
+                
+                // Record history for EL if changed
+                if (newEl != currentBalance.elManualBalance) {
+                    val cal = Calendar.getInstance()
+                    val entry = LeaveEntry(
+                        kgid = user.kgid,
+                        dateFrom = cal.time,
+                        dateTo = cal.time,
+                        totalDays = newEl,
+                        leaveType = "EL",
+                        remark = "Manual Balance Added",
+                        year = cal.get(Calendar.YEAR),
+                        month = cal.get(Calendar.MONTH) + 1,
+                        elEntryType = "credit"
+                    )
+                    leaveRepository.saveLeaveEntry(updatedBalance, entry)
+                }
+
+                // Record history for HPL if changed
+                if (newHpl != currentBalance.hplBalance) {
+                    val cal = Calendar.getInstance()
+                    val entry = LeaveEntry(
+                        kgid = user.kgid,
+                        dateFrom = cal.time,
+                        dateTo = cal.time,
+                        totalDays = newHpl,
+                        leaveType = "HPL",
+                        remark = "Manual Balance Added",
+                        year = cal.get(Calendar.YEAR),
+                        month = cal.get(Calendar.MONTH) + 1,
+                        elEntryType = "credit"
+                    )
+                    leaveRepository.saveLeaveEntry(updatedBalance, entry)
+                }
+
                 _balance.value = updatedBalance
                 refreshData(user)
             } catch (e: Exception) {
@@ -190,13 +241,60 @@ class LeaveViewModel @Inject constructor(
             val semsPassed = ((currentYear - lastYear) * 2) + (currentSem - lastSem)
             
             if (semsPassed > 0) {
-                // We add 15 EL and 10 HPL for each semester passed (cap it to some reasonable number if needed, e.g., max 6 sems)
-                val semsToCredit = semsPassed.coerceAtMost(6) // cap at 3 years missed
-                tempBalance = tempBalance.copy(
-                    elBalance = tempBalance.elBalance + (15.0 * semsToCredit),
-                    hplBalance = tempBalance.hplBalance + (10.0 * semsToCredit),
-                    lastElHplCreditDate = targetCredit
-                )
+                val semsToCredit = semsPassed.coerceAtMost(6) 
+                
+                var currentYearCursor = lastYear
+                var currentSemCursor = lastSem
+
+                repeat(semsToCredit) {
+                    if (currentSemCursor == 1) {
+                        currentSemCursor = 2
+                    } else {
+                        currentSemCursor = 1
+                        currentYearCursor++
+                    }
+
+                    val creditDate = Calendar.getInstance().apply {
+                        set(currentYearCursor, if (currentSemCursor == 1) Calendar.JANUARY else Calendar.JULY, 1, 0, 0, 0)
+                        set(Calendar.MILLISECOND, 0)
+                    }.time
+
+                    // 1. Update balance locally for THIS semester
+                    tempBalance = tempBalance.copy(
+                        elBalance = tempBalance.elBalance + 15.0,
+                        hplBalance = tempBalance.hplBalance + 10.0
+                    )
+
+                    // 2. Record EL Credit using correct balance
+                    val elCredit = LeaveEntry(
+                        kgid = kgid,
+                        dateFrom = creditDate,
+                        dateTo = creditDate,
+                        totalDays = 15.0,
+                        leaveType = "EL",
+                        remark = "Semi-annual EL Credit ($currentYearCursor Sem $currentSemCursor)",
+                        year = currentYearCursor,
+                        month = if (currentSemCursor == 1) 1 else 7,
+                        elEntryType = "credit"
+                    )
+                    leaveRepository.saveLeaveEntry(tempBalance, elCredit)
+
+                    // 3. Record HPL Credit using correct balance
+                    val hplCredit = LeaveEntry(
+                        kgid = kgid,
+                        dateFrom = creditDate,
+                        dateTo = creditDate,
+                        totalDays = 10.0,
+                        leaveType = "HPL",
+                        remark = "Semi-annual HPL Credit ($currentYearCursor Sem $currentSemCursor)",
+                        year = currentYearCursor,
+                        month = if (currentSemCursor == 1) 1 else 7,
+                        elEntryType = "credit"
+                    )
+                    leaveRepository.saveLeaveEntry(tempBalance, hplCredit)
+                }
+
+                tempBalance = tempBalance.copy(lastElHplCreditDate = targetCredit)
                 modified = true
             }
         }

@@ -82,7 +82,14 @@ fun RegistrationScreen(
     val fieldSpacing = 8.dp
     val sectionSpacing = 16.dp
 
-    val departments = listOf("Health", "Education", "Revenue", "Other")
+    var departments by remember { mutableStateOf<List<String>>(emptyList()) }
+    var isFetchingDepartments by remember { mutableStateOf(true) }
+
+    LaunchedEffect(Unit) {
+        departments = authViewModel.authRepository.getDepartments()
+        isFetchingDepartments = false
+    }
+
     val allDistricts = listOf("Bagalkot", "Ballari", "Belagavi", "Bengaluru Rural", "Bengaluru Urban", "Bidar", "Chamarajanagar", "Chikkaballapura", "Chikkamagaluru", "Chitradurga", "Dakshina Kannada", "Davanagere", "Dharwad", "Gadag", "Hassan", "Haveri", "Kalaburagi", "Kodagu", "Kolar", "Koppal", "Mandya", "Mysuru", "Raichur", "Ramanagara", "Shivamogga", "Tumakuru", "Udupi", "Uttara Kannada", "Vijayanagara", "Vijayapura", "Yadgir").sorted()
 
     Scaffold(
@@ -178,11 +185,17 @@ fun RegistrationScreen(
                     isError = showValidationErrors && department.isBlank()
                 )
                 ExposedDropdownMenu(expanded = departmentExpanded, onDismissRequest = { departmentExpanded = false }) {
-                    departments.forEach { selection ->
-                        DropdownMenuItem(text = { Text(selection) }, onClick = {
-                            department = selection
-                            departmentExpanded = false
-                        })
+                    if (isFetchingDepartments) {
+                        DropdownMenuItem(text = { Text("Loading departments...") }, onClick = {})
+                    } else if (departments.isEmpty()) {
+                        DropdownMenuItem(text = { Text("No departments found") }, onClick = {})
+                    } else {
+                        departments.forEach { selection ->
+                            DropdownMenuItem(text = { Text(selection) }, onClick = {
+                                department = selection
+                                departmentExpanded = false
+                            })
+                        }
                     }
                 }
             }

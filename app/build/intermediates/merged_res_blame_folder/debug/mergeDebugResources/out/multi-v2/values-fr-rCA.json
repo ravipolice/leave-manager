@@ -1,10 +1,27 @@
 {
     "logs": [
         {
-            "outputFile": "com.lm.app-mergeDebugResources-79:/values-fr-rCA/values-fr-rCA.xml",
+            "outputFile": "com.lm.app-mergeDebugResources-84:/values-fr-rCA/values-fr-rCA.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\ravip\\.gradle\\caches\\8.13\\transforms\\2afdf2bebfafe8dcb21118bef91137e4\\transformed\\material3-release\\res\\values-fr-rCA\\values-fr-rCA.xml",
+                    "source": "C:\\Users\\ravip\\.gradle\\caches\\8.13\\transforms\\3d9106d45e04530fea3a2e657c33467d\\transformed\\browser-1.4.0\\res\\values-fr-rCA\\values-fr-rCA.xml",
+                    "from": {
+                        "startLines": "2,3,4,5",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "55,162,264,383",
+                        "endColumns": "106,101,118,104",
+                        "endOffsets": "157,259,378,483"
+                    },
+                    "to": {
+                        "startLines": "70,77,78,79",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "7445,8071,8173,8292",
+                        "endColumns": "106,101,118,104",
+                        "endOffsets": "7547,8168,8287,8392"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\ravip\\.gradle\\caches\\8.13\\transforms\\2ad463c4a71d08a9f25daa127c8ce909\\transformed\\material3-release\\res\\values-fr-rCA\\values-fr-rCA.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
@@ -21,58 +38,41 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\ravip\\.gradle\\caches\\8.13\\transforms\\4f5d2b77d1a479454fbd0d2e9098f2e2\\transformed\\credentials-1.2.0-rc01\\res\\values-fr-rCA\\values-fr-rCA.xml",
+                    "source": "C:\\Users\\ravip\\.gradle\\caches\\8.13\\transforms\\c8dbd595b616d37849f7fa365c5beb2c\\transformed\\play-services-base-18.3.0\\res\\values-fr-rCA\\values.xml",
                     "from": {
-                        "startLines": "2,3",
-                        "startColumns": "4,4",
-                        "startOffsets": "55,171",
-                        "endColumns": "115,118",
-                        "endOffsets": "166,285"
+                        "startLines": "4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20",
+                        "startColumns": "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0",
+                        "startOffsets": "197,299,475,601,706,873,1002,1119,1228,1419,1527,1708,1840,1996,2171,2240,2303",
+                        "endColumns": "101,175,125,104,166,128,116,108,190,107,180,131,155,174,68,62,79",
+                        "endOffsets": "298,474,600,705,872,1001,1118,1227,1418,1526,1707,1839,1995,2170,2239,2302,2382"
                     },
                     "to": {
-                        "startLines": "33,34",
-                        "startColumns": "4,4",
-                        "startOffsets": "3083,3199",
-                        "endColumns": "115,118",
-                        "endOffsets": "3194,3313"
+                        "startLines": "52,53,54,55,56,57,58,59,61,62,63,64,65,66,67,68,69",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "5030,5136,5316,5446,5555,5726,5859,5980,6254,6449,6561,6746,6882,7042,7221,7294,7361",
+                        "endColumns": "105,179,129,108,170,132,120,112,194,111,184,135,159,178,72,66,83",
+                        "endOffsets": "5131,5311,5441,5550,5721,5854,5975,6088,6444,6556,6741,6877,7037,7216,7289,7356,7440"
                     }
                 },
                 {
-                    "source": "C:\\Users\\ravip\\.gradle\\caches\\8.13\\transforms\\fa87121efca0f281d5b81cea4eb0f944\\transformed\\appcompat-1.6.1\\res\\values-fr-rCA\\values-fr-rCA.xml",
+                    "source": "C:\\Users\\ravip\\.gradle\\caches\\8.13\\transforms\\ecc7db94eb87852025a745e0350d934b\\transformed\\core-1.13.1\\res\\values-fr-rCA\\values-fr-rCA.xml",
                     "from": {
-                        "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29",
-                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
-                        "startOffsets": "105,216,323,433,520,626,756,841,921,1012,1105,1203,1298,1398,1491,1584,1679,1770,1861,1947,2057,2168,2271,2382,2490,2597,2756,2855",
-                        "endColumns": "110,106,109,86,105,129,84,79,90,92,97,94,99,92,92,94,90,90,85,109,110,102,110,107,106,158,98,86",
-                        "endOffsets": "211,318,428,515,621,751,836,916,1007,1100,1198,1293,1393,1486,1579,1674,1765,1856,1942,2052,2163,2266,2377,2485,2592,2751,2850,2937"
+                        "startLines": "2,3,4,5,6,7,8,9",
+                        "startColumns": "4,4,4,4,4,4,4,4",
+                        "startOffsets": "55,153,255,354,456,560,664,778",
+                        "endColumns": "97,101,98,101,103,103,113,100",
+                        "endOffsets": "148,250,349,451,555,659,773,874"
                     },
                     "to": {
-                        "startLines": "6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,204",
-                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
-                        "startOffsets": "333,444,551,661,748,854,984,1069,1149,1240,1333,1431,1526,1626,1719,1812,1907,1998,2089,2175,2285,2396,2499,2610,2718,2825,2984,20431",
-                        "endColumns": "110,106,109,86,105,129,84,79,90,92,97,94,99,92,92,94,90,90,85,109,110,102,110,107,106,158,98,86",
-                        "endOffsets": "439,546,656,743,849,979,1064,1144,1235,1328,1426,1521,1621,1714,1807,1902,1993,2084,2170,2280,2391,2494,2605,2713,2820,2979,3078,20513"
+                        "startLines": "40,41,42,43,44,45,46,212",
+                        "startColumns": "4,4,4,4,4,4,4,4",
+                        "startOffsets": "3813,3911,4013,4112,4214,4318,4422,21066",
+                        "endColumns": "97,101,98,101,103,103,113,100",
+                        "endOffsets": "3906,4008,4107,4209,4313,4417,4531,21162"
                     }
                 },
                 {
-                    "source": "C:\\Users\\ravip\\.gradle\\caches\\8.13\\transforms\\009c76aa03118d14c53febe29b15e497\\transformed\\play-services-basement-18.4.0\\res\\values-fr-rCA\\values.xml",
-                    "from": {
-                        "startLines": "4",
-                        "startColumns": "0",
-                        "startOffsets": "199",
-                        "endColumns": "156",
-                        "endOffsets": "355"
-                    },
-                    "to": {
-                        "startLines": "60",
-                        "startColumns": "4",
-                        "startOffsets": "6093",
-                        "endColumns": "160",
-                        "endOffsets": "6249"
-                    }
-                },
-                {
-                    "source": "C:\\Users\\ravip\\.gradle\\caches\\8.13\\transforms\\e61d420851805e4542dbe542135ab50e\\transformed\\material-1.12.0\\res\\values-fr-rCA\\values-fr-rCA.xml",
+                    "source": "C:\\Users\\ravip\\.gradle\\caches\\8.13\\transforms\\3a3013af17c3edfb42891a0cb8278ea4\\transformed\\material-1.12.0\\res\\values-fr-rCA\\values-fr-rCA.xml",
                     "from": {
                         "startLines": "2,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
@@ -91,7 +91,58 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\ravip\\.gradle\\caches\\8.13\\transforms\\4dfe07b2858b0d2cc1571f70d3599d79\\transformed\\ui-release\\res\\values-fr-rCA\\values-fr-rCA.xml",
+                    "source": "C:\\Users\\ravip\\.gradle\\caches\\8.13\\transforms\\ac2ae189509a64b9b02bcc27956be5a1\\transformed\\play-services-basement-18.4.0\\res\\values-fr-rCA\\values.xml",
+                    "from": {
+                        "startLines": "4",
+                        "startColumns": "0",
+                        "startOffsets": "199",
+                        "endColumns": "156",
+                        "endOffsets": "355"
+                    },
+                    "to": {
+                        "startLines": "60",
+                        "startColumns": "4",
+                        "startOffsets": "6093",
+                        "endColumns": "160",
+                        "endOffsets": "6249"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\ravip\\.gradle\\caches\\8.13\\transforms\\85bd869a885f2b277fe2db0e6e7c897b\\transformed\\credentials-1.2.0-rc01\\res\\values-fr-rCA\\values-fr-rCA.xml",
+                    "from": {
+                        "startLines": "2,3",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,171",
+                        "endColumns": "115,118",
+                        "endOffsets": "166,285"
+                    },
+                    "to": {
+                        "startLines": "33,34",
+                        "startColumns": "4,4",
+                        "startOffsets": "3083,3199",
+                        "endColumns": "115,118",
+                        "endOffsets": "3194,3313"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\ravip\\.gradle\\caches\\8.13\\transforms\\e4104f3d381521feb694d1e788732cd6\\transformed\\appcompat-1.6.1\\res\\values-fr-rCA\\values-fr-rCA.xml",
+                    "from": {
+                        "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "105,216,323,433,520,626,756,841,921,1012,1105,1203,1298,1398,1491,1584,1679,1770,1861,1947,2057,2168,2271,2382,2490,2597,2756,2855",
+                        "endColumns": "110,106,109,86,105,129,84,79,90,92,97,94,99,92,92,94,90,90,85,109,110,102,110,107,106,158,98,86",
+                        "endOffsets": "211,318,428,515,621,751,836,916,1007,1100,1198,1293,1393,1486,1579,1674,1765,1856,1942,2052,2163,2266,2377,2485,2592,2751,2850,2937"
+                    },
+                    "to": {
+                        "startLines": "6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,204",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "333,444,551,661,748,854,984,1069,1149,1240,1333,1431,1526,1626,1719,1812,1907,1998,2089,2175,2285,2396,2499,2610,2718,2825,2984,20431",
+                        "endColumns": "110,106,109,86,105,129,84,79,90,92,97,94,99,92,92,94,90,90,85,109,110,102,110,107,106,158,98,86",
+                        "endOffsets": "439,546,656,743,849,979,1064,1144,1235,1328,1426,1521,1621,1714,1807,1902,1993,2084,2170,2280,2391,2494,2605,2713,2820,2979,3078,20513"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\ravip\\.gradle\\caches\\8.13\\transforms\\e0ce90620e561c252ffb0390f65145ef\\transformed\\ui-release\\res\\values-fr-rCA\\values-fr-rCA.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
@@ -108,24 +159,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\ravip\\.gradle\\caches\\8.13\\transforms\\d6e60f427b0d638d389c937b72d37870\\transformed\\play-services-base-18.3.0\\res\\values-fr-rCA\\values.xml",
-                    "from": {
-                        "startLines": "4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20",
-                        "startColumns": "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0",
-                        "startOffsets": "197,299,475,601,706,873,1002,1119,1228,1419,1527,1708,1840,1996,2171,2240,2303",
-                        "endColumns": "101,175,125,104,166,128,116,108,190,107,180,131,155,174,68,62,79",
-                        "endOffsets": "298,474,600,705,872,1001,1118,1227,1418,1526,1707,1839,1995,2170,2239,2302,2382"
-                    },
-                    "to": {
-                        "startLines": "52,53,54,55,56,57,58,59,61,62,63,64,65,66,67,68,69",
-                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
-                        "startOffsets": "5030,5136,5316,5446,5555,5726,5859,5980,6254,6449,6561,6746,6882,7042,7221,7294,7361",
-                        "endColumns": "105,179,129,108,170,132,120,112,194,111,184,135,159,178,72,66,83",
-                        "endOffsets": "5131,5311,5441,5550,5721,5854,5975,6088,6444,6556,6741,6877,7037,7216,7289,7356,7440"
-                    }
-                },
-                {
-                    "source": "C:\\Users\\ravip\\.gradle\\caches\\8.13\\transforms\\0cebd6b8ba683818939452eed5908bab\\transformed\\foundation-release\\res\\values-fr-rCA\\values-fr-rCA.xml",
+                    "source": "C:\\Users\\ravip\\.gradle\\caches\\8.13\\transforms\\e89fe081990f131820e40d20e41157bc\\transformed\\foundation-release\\res\\values-fr-rCA\\values-fr-rCA.xml",
                     "from": {
                         "startLines": "2,3",
                         "startColumns": "4,4",
@@ -139,40 +173,6 @@
                         "startOffsets": "21437,21525",
                         "endColumns": "87,94",
                         "endOffsets": "21520,21615"
-                    }
-                },
-                {
-                    "source": "C:\\Users\\ravip\\.gradle\\caches\\8.13\\transforms\\4cc9bc54e67b1ce49aff75e97e69bf57\\transformed\\browser-1.4.0\\res\\values-fr-rCA\\values-fr-rCA.xml",
-                    "from": {
-                        "startLines": "2,3,4,5",
-                        "startColumns": "4,4,4,4",
-                        "startOffsets": "55,162,264,383",
-                        "endColumns": "106,101,118,104",
-                        "endOffsets": "157,259,378,483"
-                    },
-                    "to": {
-                        "startLines": "70,77,78,79",
-                        "startColumns": "4,4,4,4",
-                        "startOffsets": "7445,8071,8173,8292",
-                        "endColumns": "106,101,118,104",
-                        "endOffsets": "7547,8168,8287,8392"
-                    }
-                },
-                {
-                    "source": "C:\\Users\\ravip\\.gradle\\caches\\8.13\\transforms\\8617fe409d6cbe1af2279f0016c6afe3\\transformed\\core-1.13.1\\res\\values-fr-rCA\\values-fr-rCA.xml",
-                    "from": {
-                        "startLines": "2,3,4,5,6,7,8,9",
-                        "startColumns": "4,4,4,4,4,4,4,4",
-                        "startOffsets": "55,153,255,354,456,560,664,778",
-                        "endColumns": "97,101,98,101,103,103,113,100",
-                        "endOffsets": "148,250,349,451,555,659,773,874"
-                    },
-                    "to": {
-                        "startLines": "40,41,42,43,44,45,46,212",
-                        "startColumns": "4,4,4,4,4,4,4,4",
-                        "startOffsets": "3813,3911,4013,4112,4214,4318,4422,21066",
-                        "endColumns": "97,101,98,101,103,103,113,100",
-                        "endOffsets": "3906,4008,4107,4209,4313,4417,4531,21162"
                     }
                 }
             ]

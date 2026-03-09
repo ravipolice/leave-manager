@@ -4,7 +4,7 @@
             "outputFile": "com.lm.app.test.app-mergeDebugAndroidTestResources-2:/values-v21/values-v21.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\ravip\\.gradle\\caches\\8.13\\transforms\\a148c80ccf42361bfae7c9fe920c583d\\transformed\\core-1.6.1\\res\\values-v21\\values.xml",
+                    "source": "C:\\Users\\ravip\\.gradle\\caches\\8.13\\transforms\\dd2cffb1ffb41b91f26c0967c4615dab\\transformed\\core-1.6.1\\res\\values-v21\\values.xml",
                     "from": {
                         "startLines": "4,13",
                         "startColumns": "0,0",

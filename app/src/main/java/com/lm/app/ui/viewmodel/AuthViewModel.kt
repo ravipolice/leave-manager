@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
-    private val authRepository: AuthRepository
+    val authRepository: AuthRepository
 ) : ViewModel() {
 
     private val _isLoading = MutableStateFlow(false)
@@ -36,12 +36,12 @@ class AuthViewModel @Inject constructor(
     private val _otpCountdown = MutableStateFlow(0)
     val otpCountdown = _otpCountdown.asStateFlow()
 
-    fun login(email: String, pin: String) {
+    fun login(identifier: String, pin: String) {
         viewModelScope.launch {
             _isLoading.value = true
             _error.value = null
             
-            val result = authRepository.loginWithEmailPin(email, pin)
+            val result = authRepository.loginWithEmailPin(identifier, pin)
             result.onSuccess { user ->
                 _currentUser.value = user
             }.onFailure { exception ->

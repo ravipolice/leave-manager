@@ -22,11 +22,15 @@ fun EditProfileDialog(
     var name by remember { mutableStateOf(currentUser?.name ?: "") }
     var kgid by remember { mutableStateOf(currentUser?.kgid ?: "") }
     var gender by remember { mutableStateOf(currentUser?.gender ?: "male") }
+    var phone by remember { mutableStateOf(currentUser?.phone ?: "") }
+    var email by remember { mutableStateOf(currentUser?.email ?: "") }
+    var district by remember { mutableStateOf(currentUser?.district ?: "") }
+    var placeOfWorking by remember { mutableStateOf(currentUser?.placeOfWorking ?: "") }
     var department by remember { mutableStateOf(currentUser?.department ?: "") }
-    var dobString by remember { mutableStateOf("") } // Keeping as string for simplicity in UI
+    var dobString by remember { mutableStateOf("") }
     var doaString by remember { mutableStateOf("") }
 
-    val departments = listOf("Health", "Education", "Revenue", "Other")
+    val departments = listOf("Health", "Education", "Revenue", "Police", "Other")
     var expandedDepartment by remember { mutableStateOf(false) }
 
     AlertDialog(
@@ -50,6 +54,34 @@ fun EditProfileDialog(
                     value = kgid,
                     onValueChange = { kgid = it },
                     label = { Text("KGID") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    label = { Text("Email") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = phone,
+                    onValueChange = { phone = it },
+                    label = { Text("Mobile Number") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = district,
+                    onValueChange = { district = it },
+                    label = { Text("District") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = placeOfWorking,
+                    onValueChange = { placeOfWorking = it },
+                    label = { Text("Place of Working") },
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -121,8 +153,21 @@ fun EditProfileDialog(
                         name = name,
                         kgid = kgid,
                         gender = gender,
+                        phone = phone,
+                        email = email,
+                        district = district,
+                        placeOfWorking = placeOfWorking,
                         department = department
-                    ) ?: User(kgid = kgid, name = name, gender = gender, department = department)
+                    ) ?: User(
+                        kgid = kgid, 
+                        name = name, 
+                        gender = gender, 
+                        phone = phone,
+                        email = email,
+                        district = district,
+                        placeOfWorking = placeOfWorking,
+                        department = department
+                    )
                     
                     onSave(updatedUser)
                 }

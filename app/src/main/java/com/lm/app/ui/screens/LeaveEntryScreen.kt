@@ -1,13 +1,12 @@
 package com.lm.app.ui.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -37,10 +36,23 @@ fun LeaveEntryScreen(
     
     val dateFormat = SimpleDateFormat("dd MMM yyyy", Locale.US)
 
-    val filteredEntries = remember(entries, preselectedType) {
+    val groupedEntries = remember(entries, preselectedType) {
         entries.filter { 
             if (preselectedType == "MCL") it.isMcl || it.leaveType == "MCL"
             else it.leaveType == preselectedType && !it.isMcl
+        }.groupBy { it.year }
+         .toSortedMap(compareByDescending { it })
+    }
+
+    // State to track which years are expanded. Default most recent year to expanded.
+    var expandedYears by remember { 
+        mutableStateOf(groupedEntries.keys.take(1).toSet()) 
+    }
+
+    // Update expandedYears when groupedEntries changes (e.g. initial load)
+    LaunchedEffect(groupedEntries.keys) {
+        if (expandedYears.isEmpty() && groupedEntries.isNotEmpty()) {
+            expandedYears = setOf(groupedEntries.keys.first())
         }
     }
 
@@ -73,88 +85,74 @@ fun LeaveEntryScreen(
             }
         }
     ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            // History Section
-            Text(text = "Previous $preselectedType Records", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-
-            if (filteredEntries.isEmpty()) {
-                Box(modifier = Modifier.fillMaxWidth().padding(vertical = 32.dp), contentAlignment = Alignment.Center) {
-                    Text("No records for $preselectedType", color = Color.Gray)
+        if (groupedEntries.isEmpty()) {
+            Box(modifier = Modifier.fillMaxSize().padding(paddingValues), contentAlignment = Alignment.Center) {
+                Text("No records for $preselectedType", color = Color.Gray)
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize().padding(paddingValues),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                item {
+                    Text(
+                        text = "History of $preselectedType",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
                 }
-            } else {
-                filteredEntries.forEach { entry ->
-                    val baseColor = getLeaveColor(entry.leaveType, entry.isMcl)
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(containerColor = baseColor.copy(alpha = 0.1f))
-                    ) {
-                        Column(modifier = Modifier.padding(12.dp)) {
+
+                groupedEntries.forEach { (year, yearEntries) ->
+                    val isExpanded = expandedYears.contains(year)
+                    
+                    // Year Header
+                    item(key = "header_$year") {
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp)
+                                .clickable {
+                                    expandedYears = if (isExpanded) expandedYears - year else expandedYears + year
+                                },
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                            )
+                        ) {
                             Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
+                                modifier = Modifier.padding(12.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
+                                Icon(
+                                    imageVector = if (isExpanded) Icons.Default.ExpandMore else Icons.Default.ChevronRight,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                                Spacer(Modifier.width(8.dp))
                                 Text(
-                                    text = if (entry.isMcl) "Menstrual CL" else entry.leaveType,
+                                    text = "Year $year",
                                     fontWeight = FontWeight.Bold,
-                                    color = baseColor,
                                     modifier = Modifier.weight(1f)
                                 )
-                                Row {
-                                    IconButton(
-                                        onClick = { showEditDialog = entry },
-                                        modifier = Modifier.size(32.dp)
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Edit,
-                                            contentDescription = "Edit",
-                                            modifier = Modifier.size(18.dp),
-                                            tint = baseColor
-                                        )
-                                    }
-                                    IconButton(
-                                        onClick = { showDeleteDialog = entry },
-                                        modifier = Modifier.size(32.dp)
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Delete,
-                                            contentDescription = "Delete",
-                                            modifier = Modifier.size(18.dp),
-                                            tint = MaterialTheme.colorScheme.error
-                                        )
-                                    }
+                                Badge(
+                                    containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                                    contentColor = MaterialTheme.colorScheme.primary
+                                ) {
+                                    Text("${yearEntries.size} entries", modifier = Modifier.padding(horizontal = 4.dp))
                                 }
                             }
-                            
-                            val dateStr = if (entry.dateFrom == entry.dateTo) {
-                                entry.dateFrom?.let { dateFormat.format(it) } ?: ""
-                            } else {
-                                "${entry.dateFrom?.let { dateFormat.format(it) } ?: ""} - ${entry.dateTo?.let { dateFormat.format(it) } ?: ""}"
-                            }
-                            val durationValue = if (entry.totalDays % 1.0 == 0.0) entry.totalDays.toInt().toString() else "%.1f".format(entry.totalDays)
-                            val durationSuffix = "day${if (entry.totalDays != 1.0) "s" else ""}"
-                            
-                            Text(
-                                text = "$dateStr ($durationValue $durationSuffix)",
-                                fontSize = 14.sp,
-                                modifier = Modifier.padding(top = 2.dp)
+                        }
+                    }
+
+                    if (isExpanded) {
+                        items(yearEntries, key = { it.id }) { entry ->
+                            LeaveEntryCard(
+                                entry = entry,
+                                dateFormat = dateFormat,
+                                onEdit = { showEditDialog = it },
+                                onDelete = { showDeleteDialog = it }
                             )
-                            
-                            entry.remark?.let {
-                                Text(
-                                    text = "Note: $it",
-                                    fontSize = 12.sp,
-                                    color = Color.Gray,
-                                    modifier = Modifier.padding(top = 4.dp)
-                                )
-                            }
                         }
                     }
                 }
@@ -197,3 +195,104 @@ fun LeaveEntryScreen(
         )
     }
 }
+
+@Composable
+fun LeaveEntryCard(
+    entry: LeaveEntry,
+    dateFormat: SimpleDateFormat,
+    onEdit: (LeaveEntry) -> Unit,
+    onDelete: (LeaveEntry) -> Unit
+) {
+    val baseColor = getLeaveColor(entry.leaveType, entry.isMcl)
+    Card(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+        colors = CardDefaults.cardColors(containerColor = baseColor.copy(alpha = 0.08f))
+    ) {
+        Column(modifier = Modifier.padding(12.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = when {
+                        entry.elEntryType == "credit" -> "Credit Added"
+                        entry.isMcl -> "Menstrual CL"
+                        else -> entry.leaveType
+                    },
+                    fontWeight = FontWeight.Bold,
+                    color = if (entry.elEntryType == "credit") Color(0xFF43A047) else baseColor,
+                    modifier = Modifier.weight(1f)
+                )
+                if (entry.elEntryType != "credit") {
+                    Row {
+                        IconButton(
+                            onClick = { onEdit(entry) },
+                            modifier = Modifier.size(32.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "Edit",
+                                modifier = Modifier.size(18.dp),
+                                tint = baseColor
+                            )
+                        }
+                        IconButton(
+                            onClick = { onDelete(entry) },
+                            modifier = Modifier.size(32.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = "Delete",
+                                modifier = Modifier.size(18.dp),
+                                tint = MaterialTheme.colorScheme.error
+                            )
+                        }
+                    }
+                }
+            }
+
+            val dateStr = if (entry.dateFrom == entry.dateTo) {
+                entry.dateFrom?.let { dateFormat.format(it) } ?: ""
+            } else {
+                "${entry.dateFrom?.let { dateFormat.format(it) } ?: ""} - ${entry.dateTo?.let { dateFormat.format(it) } ?: ""}"
+            }
+            val durationValue = if (entry.totalDays % 1.0 == 0.0) entry.totalDays.toInt().toString() else "%.1f".format(entry.totalDays)
+            val durationSuffix = "day${if (entry.totalDays != 1.0) "s" else ""}"
+
+            Text(
+                text = if (entry.elEntryType == "credit") {
+                    "$dateStr (+ $durationValue $durationSuffix)"
+                } else {
+                    "$dateStr ($durationValue $durationSuffix)"
+                },
+                fontSize = 14.sp,
+                modifier = Modifier.padding(top = 2.dp),
+                color = if (entry.elEntryType == "credit") Color(0xFF2E7D32) else Color.Unspecified
+            )
+
+            entry.remark?.let {
+                Text(
+                    text = "Note: $it",
+                    fontSize = 12.sp,
+                    color = Color.Gray,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
+        }
+    }
+}
+
+fun getLeaveColor(leaveType: String, isMcl: Boolean): Color {
+    return when {
+        isMcl -> Color(0xFFE91E63)
+        leaveType == "CL" -> Color(0xFF43A047)
+        leaveType == "EL" -> Color(0xFF1E88E5)
+        leaveType == "HPL" -> Color(0xFFFB8C00)
+        leaveType == "WO" -> Color(0xFF8E24AA)
+        leaveType == "CCL" -> Color(0xFF00ACC1)
+        else -> Color(0xFF546E7A)
+    }
+}
+
+

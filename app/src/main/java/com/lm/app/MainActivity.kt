@@ -30,6 +30,12 @@ import dagger.hilt.android.AndroidEntryPoint
 import java.net.URLDecoder
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import com.lm.app.data.repository.AuthRepository
+import com.lm.app.worker.InactivityWorker
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -38,8 +44,13 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var backupService: BackupService
 
+    @Inject
+    lateinit var authRepository: AuthRepository
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        recordActivity()
+        scheduleInactivityWorker()
         setContent {
             MaterialTheme {
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
@@ -47,6 +58,23 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    private fun recordActivity() {
+        val prefs = getSharedPreferences("user_prefs", MODE_PRIVATE)
+        prefs.edit().putLong("last_activity_timestamp", System.currentTimeMillis()).apply()
+    }
+
+    private fun scheduleInactivityWorker() {
+        val workRequest = PeriodicWorkRequestBuilder<InactivityWorker>(24, TimeUnit.HOURS)
+            .setInitialDelay(24, TimeUnit.HOURS)
+            .build()
+
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            "inactivity_reminder",
+            ExistingPeriodicWorkPolicy.KEEP,
+            workRequest
+        )
     }
 }
 
@@ -59,7 +87,12 @@ fun AppNavigation(backupService: BackupService) {
 
     val currentUser by userViewModel.currentUser.collectAsState()
 
-
+    LaunchedEffect(currentUser) {
+        currentUser?.let { user ->
+            // Sync activity to cloud
+            (context as? MainActivity)?.authRepository?.updateLastActive(user.kgid)
+        }
+    }
 
     LaunchedEffect(currentUser) {
         if (currentUser != null && navController.currentDestination?.route == "login") {

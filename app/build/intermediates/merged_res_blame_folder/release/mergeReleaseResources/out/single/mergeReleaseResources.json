@@ -1,0 +1,78 @@
+[
+    {
+        "merged": "com.lm.app-release-81:/drawable_login_bg.png.flat",
+        "source": "com.lm.app-main-82:/drawable/login_bg.png"
+    },
+    {
+        "merged": "com.lm.app-release-81:/xml_data_extraction_rules.xml.flat",
+        "source": "com.lm.app-main-82:/xml/data_extraction_rules.xml"
+    },
+    {
+        "merged": "com.lm.app-release-81:/drawable_ic_google_logo.xml.flat",
+        "source": "com.lm.app-main-82:/drawable/ic_google_logo.xml"
+    },
+    {
+        "merged": "com.lm.app-release-81:/drawable_ic_launcher_foreground.xml.flat",
+        "source": "com.lm.app-main-82:/drawable/ic_launcher_foreground.xml"
+    },
+    {
+        "merged": "com.lm.app-release-81:/drawable_app_logo_premium.png.flat",
+        "source": "com.lm.app-main-82:/drawable/app_logo_premium.png"
+    },
+    {
+        "merged": "com.lm.app-release-81:/layout_google_sign_in_button.xml.flat",
+        "source": "com.lm.app-main-82:/layout/google_sign_in_button.xml"
+    },
+    {
+        "merged": "com.lm.app-release-81:/drawable_app_logo.png.flat",
+        "source": "com.lm.app-main-82:/drawable/app_logo.png"
+    },
+    {
+        "merged": "com.lm.app-release-81:/drawable_officer.png.flat",
+        "source": "com.lm.app-main-82:/drawable/officer.png"
+    },
+    {
+        "merged": "com.lm.app-release-81:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "com.lm.app-main-82:/mipmap-anydpi-v26/ic_launcher_round.xml"
+    },
+    {
+        "merged": "com.lm.app-release-81:/drawable_app_logo_inset.xml.flat",
+        "source": "com.lm.app-main-82:/drawable/app_logo_inset.xml"
+    },
+    {
+        "merged": "com.lm.app-release-81:/drawable_ic_officer_building.png.flat",
+        "source": "com.lm.app-main-82:/drawable/ic_officer_building.png"
+    },
+    {
+        "merged": "com.lm.app-release-81:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "com.lm.app-main-82:/mipmap-anydpi-v26/ic_launcher.xml"
+    },
+    {
+        "merged": "com.lm.app-release-81:/layout_activity_main.xml.flat",
+        "source": "com.lm.app-main-82:/layout/activity_main.xml"
+    },
+    {
+        "merged": "com.lm.app-release-81:/drawable_ic_whatsapp_logo.xml.flat",
+        "source": "com.lm.app-main-82:/drawable/ic_whatsapp_logo.xml"
+    },
+    {
+        "merged": "com.lm.app-release-81:/xml_backup_rules.xml.flat",
+        "source": "com.lm.app-main-82:/xml/backup_rules.xml"
+    },
+    {
+        "merged": "com.lm.app-release-81:/drawable_ic_launcher_background.xml.flat",
+        "source": "com.lm.app-main-82:/drawable/ic_launcher_background.xml"
+    },
+    {
+        "merged": "com.lm.app-release-81:/xml_network_security_config.xml.flat",
+        "source": "com.lm.app-main-82:/xml/network_security_config.xml"
+    },
+    {
+        "merged": "com.lm.app-release-81:/drawable_ic_whatsapp.xml.flat",
+        "source": "com.lm.app-main-82:/drawable/ic_whatsapp.xml"
+    },
+    {
+        "merged": "com.lm.app-release-81:/xml_file_paths.xml.flat",
+        "source": "com.lm.app-main-82:/xml/file_paths.xml"
+    }
+]
