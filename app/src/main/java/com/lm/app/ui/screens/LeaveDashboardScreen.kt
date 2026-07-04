@@ -350,28 +350,37 @@ fun LeaveTile(title: String, balance: String, subtitle: String, icon: ImageVecto
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
-        Box(modifier = Modifier.fillMaxSize().background(Brush.horizontalGradient(gradient)).padding(16.dp)) {
-            Text(
-                text = title,
-                color = Color.White,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.align(Alignment.TopEnd).offset(y = (-8).dp)
-            )
-            Column(modifier = Modifier.align(Alignment.CenterStart)) {
+        Box(modifier = Modifier.fillMaxSize().background(Brush.horizontalGradient(gradient)).padding(12.dp)) {
+            // Top row: edit icon (start) + title (end)
+            Row(
+                modifier = Modifier.fillMaxWidth().align(Alignment.TopStart),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (actionIcon != null && onActionClick != null) {
+                    IconButton(
+                        onClick = onActionClick,
+                        modifier = Modifier.size(28.dp)
+                    ) {
+                        Icon(imageVector = actionIcon, contentDescription = "Edit", tint = Color.White.copy(alpha = 0.8f), modifier = Modifier.size(16.dp))
+                    }
+                } else {
+                    Spacer(modifier = Modifier.size(28.dp))
+                }
+                Text(
+                    text = title,
+                    color = Color.White,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            // Centre-left: balance number + subtitle
+            Column(modifier = Modifier.align(Alignment.CenterStart).padding(top = 4.dp)) {
                 Text(text = balance, color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Bold)
                 Text(text = subtitle, color = Color.White.copy(alpha = 0.8f), fontSize = 12.sp)
             }
+            // Background icon (bottom-end)
             Icon(imageVector = icon, contentDescription = null, tint = Color.White.copy(alpha = 0.2f), modifier = Modifier.size(64.dp).align(Alignment.BottomEnd))
-            
-            if (actionIcon != null && onActionClick != null) {
-                IconButton(
-                    onClick = onActionClick,
-                    modifier = Modifier.align(Alignment.TopStart).size(32.dp).offset(y = (-12).dp, x = (-12).dp)
-                ) {
-                    Icon(imageVector = actionIcon, contentDescription = "Edit", tint = Color.White.copy(alpha = 0.7f), modifier = Modifier.size(16.dp))
-                }
-            }
         }
     }
 }
